@@ -7,3 +7,6 @@
 [submodule "front"]
 	path = front
 	url = https://github.com/weridolin/site-front-new
+[submodule "alinlab-webhook"]
+	path = alinlab-webhook
+	url = https://github.com/weridolin/alinLab-webhook
