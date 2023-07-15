@@ -1,27 +1,24 @@
 version: '3'
-
 services:
-
   sitedb:
     container_name: site-database
-    environment:
-      - PGDATA
-      - POSTGRES_DB
-      - POSTGRES_PASSWORD
-      - POSTGRES_USER
+    env_file:
+      - ../.env
     image: postgres:12
     ports:
       - 5432:5432
     restart: unless-stopped
     volumes:
       - /usr/site/data/pgdata:/var/lib/postgresql/data/pgdata
+    networks:
+      - default
 
   redis:
+    env_file:
+      - ../.env
     image: redis:latest
     restart: "no"
     container_name: redis-site
-    environment:
-      - REDIS_PASSWORD
     ports:
       - 6379:6379
     volumes:
@@ -29,25 +26,21 @@ services:
       - /usr/site/data/redis:/data
     command: redis-server /etc/redis/redis.conf --requirepass werido
     privileged: true
+    networks:
+      - default
 
 
   siteoldbackend:
-    container_name: old-site-backend
-    environment:
-      - POSTGRES_HOST
-      - POSTGRES_PORT
-      - REDIS_PASSWORD
-      - REDIS_HOST
-      - REDIS_PORT
-      - EMAIL_PWD
+    # container_name: old-site-backend
+    image: python:3.9
+    env_file:
+      - ../.env
     working_dir: /app
-    build: 
-      context: ../oldbackned/
-      dockerfile: Dockerfile
     command:       
       - /bin/bash
       - -c
       - |
+        mkdir /root/.pip/
         cp pip.conf /root/.pip/pip.conf
         pip install -r requirements.txt
         supervisord  -c celery.conf
@@ -55,17 +48,20 @@ services:
         python manage.py migrate
         gunicorn -c gunicorn.py core.asgi:application
     volumes:
-      - ../oldbackned/:/app
-    ports:
-      - 8000:8000
-      - 465:465
-      - 25:25
-      - 9001:9001
+      - ../oldbackend/:/app
+    # ports:
+    #   - 8000:8000
+    #   - 9001:9001
     depends_on:
       - sitedb
       - redis
+    scale: 2
+    networks:
+      - default
 
   usercenter:
+    env_file:
+      - ../.env  
     image: golang:latest
     container_name: user-center
     working_dir: /app
@@ -87,6 +83,8 @@ services:
       - default    
 
   front:
+    env_file:
+      - ../.env  
     container_name: site-nginx
     image: nginx
     ports:
@@ -94,13 +92,12 @@ services:
     - 443:443
     restart: unless-stopped
     volumes:
-    # - /pythons/site-new/dist:/usr/share/nginx/html/
+    - ../dist/front/:/usr/share/nginx/html/
     - ../gateway/nginx/conf.d/:/etc/nginx/conf.d/ 
-    - ../gateway/conf/nginx.conf:/etc/nginx/nginx.conf
+    - ../gateway/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
     - /usr/site/logs/nginx/:/var/log/nginx/
     - /etc/ssl/:/etc/ssl/
     depends_on: 
-    # - django todo
       - usercenter
       - siteoldbackend
     networks:
