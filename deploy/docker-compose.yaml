@@ -73,7 +73,7 @@ services:
         go mod tidy
         go run  ./services/users/cmd/rest/users.go -f ./services/users/cmd/rest/etc/users.yaml
     volumes:
-      - ../usercenter/:/app
+      - ../usercenter:/app
     ports:
       - "8080:8080"
     environment:
@@ -99,7 +99,7 @@ services:
     - /etc/ssl/:/etc/ssl/
     depends_on: 
       - usercenter
-      - siteoldbackend
+      # - siteoldbackend
     networks:
       - default
 
