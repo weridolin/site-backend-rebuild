@@ -1,0 +1,46 @@
+upstream usercenter {
+    server usercenter:8080 weight=100; ## 用户中心
+}
+
+
+## 旧的都写在一起了
+upstream blogsandhome {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客
+}
+
+
+upstream drug {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客
+}
+
+upstream fileBroker {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客
+}
+
+upstream dataFaker {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客
+}
+
+upstream shortUrl {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客
+}
+
+upstream apiCollector {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客
+}
+
+upstream chatGPT {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客
+}
+
+upstream covid19 {
+    server deploy_siteoldbackend_1:8001 weight=50; ## 博客
+    server deploy_siteoldbackend_2:8001 weight=50; ## 博客  
+}

@@ -1,0 +1,10 @@
+[template]
+src="nginx_server_upstream.tmpl"
+dest="/etc/nginx/conf.d/upstream.conf"
+
+keys = [
+    "/site",
+]
+
+# check_cmd = "/usr/sbin/nginx -t -c {{.src}}"
+reload_cmd = "/usr/sbin/service nginx reload"

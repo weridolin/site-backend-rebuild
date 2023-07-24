@@ -42,7 +42,7 @@ services:
       - |
         mkdir /root/.pip/
         cp pip.conf /root/.pip/pip.conf
-        pip install -r requirements.txt
+        pip install -r requirements.txt  --default-timeout=1000
         supervisord  -c celery.conf
         python manage.py makemigrations
         python manage.py migrate
@@ -55,6 +55,7 @@ services:
     depends_on:
       - sitedb
       - redis
+      - etcd
     scale: 2
     networks:
       - default
@@ -71,7 +72,8 @@ services:
       - |
         echo 'start server...'
         go mod tidy
-        go run  ./services/users/cmd/rest/users.go -f ./services/users/cmd/rest/etc/users.yaml
+        go install github.com/cortesi/modd/cmd/modd@latest
+        modd -f modd.conf
     volumes:
       - ../usercenter:/app
     ports:
@@ -80,7 +82,11 @@ services:
       - GO111MODULE=on
       - GOPROXY=https://goproxy.cn/,direct
     networks:
-      - default    
+      - default
+    depends_on:
+      - etcd
+      - sitedb
+      - redis 
 
   front:
     env_file:
@@ -95,14 +101,47 @@ services:
     - ../dist/front/:/usr/share/nginx/html/
     - ../gateway/nginx/conf.d/:/etc/nginx/conf.d/ 
     - ../gateway/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+    - ../gateway/confd/:/etc/confd/
     - /usr/site/logs/nginx/:/var/log/nginx/
     - /etc/ssl/:/etc/ssl/
+    command:       
+      - /bin/bash
+      - -c
+      - |
+        /usr/sbin/service nginx start
+        echo 'install confd...'
+        /etc/confd/bin/confd -watch -backend etcdv3  -confdir  /etc/confd/  -node=http://etcd:2379 -log-level debug
     depends_on: 
-      - usercenter
-      # - siteoldbackend
+      # - usercenter
+      - siteoldbackend
     networks:
       - default
 
+  etcd:
+    container_name: site-etcd
+    hostname: etcd
+    image: bitnami/etcd:latest
+    deploy:
+      replicas: 1
+      # restart_policy:
+      #   condition: on-failure
+    privileged: true
+    # volumes:
+    #   - "/etcd/data:/opt/bitnami/etcd/data"
+    environment:
+      - "ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379"
+      - "ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379"
+      - "ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380"
+      - "ETCD_INITIAL_ADVERTISE_PEER_URLS=http://0.0.0.0:2380"
+      - "ALLOW_NONE_AUTHENTICATION=yes"
+      - "ETCD_INITIAL_CLUSTER=node1=http://0.0.0.0:2380"
+      - "ETCD_NAME=node1"
+      - "ETCD_DATA_DIR=/opt/bitnami/etcd/data"
+    ports:
+      - 2379:2379
+      - 2380:2380
+    networks:
+      - default
 
 networks:
   default:

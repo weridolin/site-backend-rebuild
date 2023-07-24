@@ -1,0 +1,129 @@
+{{$domains := ls "/site/withauth/usercenter/rest"}}
+upstream usercenter {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withauth/usercenter/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withauth/blog/rest"}}
+upstream blog {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withauth/blog/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withauth/apiCollector/rest"}}
+upstream apiCollector {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withauth/apiCollector/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withauth/chatGPT/rest"}}
+upstream chatGPT {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withauth/chatGPT/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withoutauth/drug/rest"}}
+upstream drug {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withoutauth/drug/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withoutauth/home/rest"}}
+upstream home {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withoutauth/home/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withoutauth/dataFaker/rest"}}
+upstream dataFaker {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withoutauth/dataFaker/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withoutauth/fileBroker/rest"}}
+upstream fileBroker {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withoutauth/fileBroker/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withoutauth/covid19/rest"}}
+upstream covid19 {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withoutauth/covid19/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
+
+{{$domains := ls "/site/withoutauth/shortUrl/rest"}}
+upstream shortUrl {
+{{range $domain :=  $domains}}
+{{$server_key := printf "/site/withoutauth/shortUrl/rest/%s" $domain}}   
+{{if getvs $server_key}}  
+    {{range $server := getvs $server_key}}  
+    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{end}}
+{{else}}
+{{end}}
+{{end}}
+}
