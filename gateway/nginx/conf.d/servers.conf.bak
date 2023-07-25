@@ -44,8 +44,8 @@ server {
     ######### 旧的都写在一起了，所以这里用一个转发,后续加新的可以单独独立出来
 
     ## blogs
-    location ^~ /blogs/ {
-        # 鉴权
+    location ^~ /blog/ {
+        # 鉴
         auth_request /token;
         auth_request_set $user $upstream_http_x_forwarded_user;
         proxy_set_header X-User $user; # 可以传递Header
