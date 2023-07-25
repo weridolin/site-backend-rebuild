@@ -1,3 +1,4 @@
 .history
 .env
 ./dist/*
+./gateway/nginx/conf.d/*
