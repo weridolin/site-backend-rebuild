@@ -85,8 +85,33 @@ services:
     depends_on: 
       - usercenter
       - siteoldbackend
+      - alinlabWebhook
     networks:
       - default
+
+  alinlabWebhook:
+    env_file:
+      - ../.env  
+    image: golang:latest
+    container_name: alinlab-Webhook
+    working_dir: /app
+    command:       
+      - /bin/bash
+      - -c
+      - |
+        echo 'start server...'
+        go mod tidy
+        go install github.com/cortesi/modd/cmd/modd@latest
+        modd -f modd.conf
+    volumes:
+      - ../alinlab-webhook:/app
+    ports:
+      - "14001:14001"
+    environment:
+      - GO111MODULE=on
+      - GOPROXY=https://goproxy.cn/,direct
+    networks:
+      - default   
 
 networks:
   default:

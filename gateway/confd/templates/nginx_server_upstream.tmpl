@@ -1,11 +1,16 @@
-{{$domains := ls "/site/withauth/usercenter/rest"}}
+# 需要鉴权
+{{$servers := ls "/site/withauth"}}
+{{if $servers}}
+{{range $server :=  $servers}}
+{{$server_key1 := printf "/site/withauth/%s/rest" $server}}
+{{$domains := ls $server_key1}}
 {{if $domains}}
-upstream usercenter {
+upstream {{$server}} {
 {{range $domain :=  $domains}}
-{{$server_key := printf "/site/withauth/usercenter/rest/%s" $domain}}   
+{{$server_key := printf "/site/withauth/%s/rest/%s" $server $domain}}   
 {{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{range $addr := getvs $server_key}}  
+    server {{$addr}} weight=1 max_fails=3 fail_timeout=30s;
     {{end}}
 {{else}}
 {{end}}
@@ -13,14 +18,16 @@ upstream usercenter {
 }
 {{end}}
 
-{{$domains := ls "/site/withauth/blog/rest"}}
-{{if $domains}}
-upstream blog {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withauth/blog/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+{{$WSKey := printf "/site/withauth/%s/ws" $server}}
+{{$WSdomains := ls $WSKey}}
+{{if $WSdomains}}
+## {{$server}} websocket 转发
+upstream ws_{{$server}} {
+{{range $WSdomain :=  $WSdomains}}
+{{$ws_server_key := printf "/site/withauth/%s/ws/%s" $server $WSdomain}}   
+{{if getvs $ws_server_key}}  
+    {{range $addr := getvs $ws_server_key}}  
+    server {{$addr}} weight=1 max_fails=3 fail_timeout=30s;
     {{end}}
 {{else}}
 {{end}}
@@ -28,14 +35,17 @@ upstream blog {
 }
 {{end}}
 
-{{$domains := ls "/site/withauth/apiCollector/rest"}}
-{{if $domains}}
-upstream apiCollector {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withauth/apiCollector/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+
+{{$SIOKey := printf "/site/withauth/%s/socketio" $server}}
+{{$SIOdomains := ls $SIOKey}}
+{{if $SIOdomains}}
+## {{$server}} socketIO 转发
+upstream socketio_{{$server}} {
+{{range $SIOdomain :=  $SIOdomains}}
+{{$sio_server_key := printf "/site/withauth/%s/socketio/%s" $server $SIOdomain}}   
+{{if getvs $sio_server_key}}  
+    {{range $addr := getvs $sio_server_key}}  
+    server {{$addr}} weight=1 max_fails=3 fail_timeout=30s;
     {{end}}
 {{else}}
 {{end}}
@@ -43,14 +53,24 @@ upstream apiCollector {
 }
 {{end}}
 
-{{$domains := ls "/site/withauth/chatGPT/rest"}}
+
+{{end}}
+{{end}}
+
+
+# 不需要鉴权
+{{$servers := ls "/site/withoutauth"}}
+{{if $servers}}
+{{range $server :=  $servers}}
+{{$server_key1 := printf "/site/withoutauth/%s/rest" $server}}
+{{$domains := ls $server_key1}}
 {{if $domains}}
-upstream chatGPT {
+upstream {{$server}} {
 {{range $domain :=  $domains}}
-{{$server_key := printf "/site/withauth/chatGPT/rest/%s" $domain}}   
+{{$server_key := printf "/site/withoutauth/%s/rest/%s" $server $domain}}   
 {{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+    {{range $addr := getvs $server_key}}  
+    server {{$addr}} weight=1 max_fails=3 fail_timeout=30s;
     {{end}}
 {{else}}
 {{end}}
@@ -58,14 +78,16 @@ upstream chatGPT {
 }
 {{end}}
 
-{{$domains := ls "/site/withoutauth/drug/rest"}}
-{{if $domains}}
-upstream drug {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withoutauth/drug/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+{{$WSKey := printf "/site/withoutauth/%s/ws" $server}}
+{{$WSdomains := ls $WSKey}}
+{{if $WSdomains}}
+## {{$server}} websocket 转发,如果有的话
+upstream ws_{{$server}} {
+{{range $WSdomain :=  $WSdomains}}
+{{$ws_server_key := printf "/site/withoutauth/%s/ws/%s" $server $WSdomain}}   
+{{if getvs $ws_server_key}}  
+    {{range $addr := getvs $ws_server_key}}  
+    server {{$addr}} weight=1 max_fails=3 fail_timeout=30s;
     {{end}}
 {{else}}
 {{end}}
@@ -73,14 +95,16 @@ upstream drug {
 }
 {{end}}
 
-{{$domains := ls "/site/withoutauth/home/rest"}}
-{{if $domains}}
-upstream home {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withoutauth/home/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
+{{$SIOKey := printf "/site/withoutauth/%s/socketio" $server}}
+{{$SIOdomains := ls $SIOKey}}
+{{if $SIOdomains}}
+## {{$server}} socketIO 转发
+upstream socketio_{{$server}} {
+{{range $SIOdomain :=  $SIOdomains}}
+{{$sio_server_key := printf "/site/withoutauth/%s/socketio/%s" $server $SIOdomain}}   
+{{if getvs $sio_server_key}}  
+    {{range $addr := getvs $sio_server_key}}  
+    server {{$addr}} weight=1 max_fails=3 fail_timeout=30s;
     {{end}}
 {{else}}
 {{end}}
@@ -88,73 +112,20 @@ upstream home {
 }
 {{end}}
 
-{{$domains := ls "/site/withoutauth/dataFaker/rest"}}
-{{if $domains}}
-upstream dataFaker {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withoutauth/dataFaker/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
-    {{end}}
-{{else}}
+
+
 {{end}}
-{{end}}
-}
 {{end}}
 
-{{$domains := ls "/site/withoutauth/fileBroker/rest"}}
-{{if $domains}}
-upstream fileBroker {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withoutauth/fileBroker/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
-    {{end}}
-{{else}}
-{{end}}
-{{end}}
-}
-{{end}}
 
-{{$domains := ls "/site/withoutauth/covid19/rest"}}
-{{if $domains}}
-upstream covid19 {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withoutauth/covid19/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
-    {{end}}
-{{else}}
-{{end}}
-{{end}}
-}
-{{end}}
-
-{{$domains := ls "/site/withoutauth/shortUrl/rest"}}
-{{if $domains}}
-upstream shortUrl {
-{{range $domain :=  $domains}}
-{{$server_key := printf "/site/withoutauth/shortUrl/rest/%s" $domain}}   
-{{if getvs $server_key}}  
-    {{range $server := getvs $server_key}}  
-    server {{$server}} weight=1 max_fails=3 fail_timeout=30s;
-    {{end}}
-{{else}}
-{{end}}
-{{end}}
-}
-{{end}}
 
 
 
 server {
 
     # 监听 https 服务
-    # listen 443 ssl;
-    listen 80;
+    listen 443 ssl;
+    # listen 80;
     server_name www.weridolin.cn;
     # server_name_in_redirect off;
 
@@ -166,14 +137,14 @@ server {
     charset "utf-8";
 
     # # ssl证书地址
-    # ssl_certificate     /etc/ssl/certs/8631248_www.weridolin.cn.pem;  # pem文件的路径
-    # ssl_certificate_key  /etc/ssl/private/8631248_www.weridolin.cn.key; # key文件的路径
+    ssl_certificate     /etc/ssl/certs/www.weridolin.cn.pem;  # pem文件的路径
+    ssl_certificate_key  /etc/ssl/private/www.weridolin.cn.key; # key文件的路径
 
     # # ssl验证相关配置
-    # ssl_session_timeout  5m;    #缓存有效期
-    # ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4:!DH:!DHE;    #加密算法
-    # ssl_protocols TLSv1.1 TLSv1.2;    #安全链接可选的加密协议
-    # ssl_prefer_server_ciphers on;   #使用服务器端的首选算法
+    ssl_session_timeout  5m;    #缓存有效期
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4:!DH:!DHE;    #加密算法
+    ssl_protocols TLSv1.1 TLSv1.2;    #安全链接可选的加密协议
+    ssl_prefer_server_ciphers on;   #使用服务器端的首选算法
 
     # index  / 页面地址 要跟前端打包后的映射地址一致
     index index.html;
@@ -220,6 +191,39 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Server-Name "{{$domain}}";  
     }
+
+    {{$WSKey := printf "/site/withauth/%s/ws/*" $domain}}
+    {{if getvs $WSKey}}
+    ## {{$domain}}  websocket 转发,如果有的话
+    location ^~ /{{$domain}}/ws {
+        proxy_pass http://ws_{{$domain}};
+        # 链接超时
+        proxy_read_timeout   3600s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header  X-Real-IP  $remote_addr;
+        proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    {{end}}
+        
+    {{$SocketIOKey := printf "/site/withauth/%s/socketio/*" $domain}}
+    {{if getvs $SocketIOKey}}
+    ## {{$domain}}  socketio  转发,如果有的话
+    location ^~ /{{$domain}}/socketio {
+        proxy_pass http://socketio_{{$domain}};
+        # 链接超时
+        proxy_read_timeout   3600s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header  X-Real-IP  $remote_addr;
+        proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    {{end}}
+
     {{end}}
     {{end}}
 
@@ -244,23 +248,44 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Server-Name "{{$domain}}";  
     }
+
+    {{$WSKey := printf "/site/withoutauth/%s/ws/*" $domain}}
+    {{if getvs $WSKey}}
+    ## {{$domain}}  websocket 转发,如果有的话
+    location ^~ /{{$domain}}/ws {
+        proxy_pass http://ws_{{$domain}};
+        # 链接超时
+        proxy_read_timeout   3600s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header  X-Real-IP  $remote_addr;
+        proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    {{end}}
+        
+    {{$SocketIOKey := printf "/site/withoutauth/%s/socketio/*" $domain}}
+    {{if getvs $SocketIOKey}}
+    ## {{$domain}}  socketio  转发,如果有的话
+    location ^~ /{{$domain}}/socketio {
+        proxy_pass http://socketio_{{$domain}};
+        # 链接超时
+        proxy_read_timeout   3600s;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header  X-Real-IP  $remote_addr;
+        proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    {{end}}
+
+
     {{end}}
     {{end}}
 
-    # # websocket 转发
-    # location /ws {
-    #     proxy_pass http://localhost:8000;
-    #     # 链接超时
-    #     proxy_read_timeout   3600s;
-    #     proxy_http_version 1.1;
-    #     proxy_set_header Upgrade $http_upgrade;
-    #     proxy_set_header Connection "upgrade";
-    #     proxy_set_header       Host $host;
-    #     proxy_set_header  X-Real-IP  $remote_addr;
-    #     proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-    # }
 
-    # admin
     # location /admin {
     #     auth_request /auth;
     #     auth_request_set $user $upstream_http_x_forwarded_user;
@@ -289,3 +314,4 @@ server {
     #    root /home/webserver/web/WebServer/;
     #}
 }
+

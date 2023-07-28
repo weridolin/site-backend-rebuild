@@ -2,3 +2,4 @@
 .env
 ./dist/*
 ./gateway/nginx/conf.d/*
+./ssl/*
