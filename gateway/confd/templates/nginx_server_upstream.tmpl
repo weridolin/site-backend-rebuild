@@ -118,10 +118,9 @@ upstream socketio_{{$server}} {
 {{end}}
 
 
-
-
-
 server {
+
+
 
     # 监听 https 服务
     listen 443 ssl;
@@ -130,8 +129,8 @@ server {
     # server_name_in_redirect off;
 
     # 路径
-    access_log /var/log/nginx/https.www.weridolin.cn.access.log;
-    error_log /var/log/nginx/https.www.weridolin.cn.error.log;
+    access_log /var/log/nginx/https.www.weridolin.cn.access.log  ;
+    error_log /var/log/nginx/https.www.weridolin.cn.error.log  ;
 
     # 编码
     charset "utf-8";
@@ -153,16 +152,16 @@ server {
     # 400 500 页面
     error_page  404 /404.html;    
     error_page  500 /500.html;
-    # error_page  401 /401.html;
+    error_page  401 /401.html;
 
     # 如果是以短重定向到正常链接
     if ($http_host ~ "^t.weridolin.cn") {
         rewrite ^(.*)  http://www.weridolin.cn/shortUrl/api/v1/$1 permanent;
     }
 
-    location / {
-        try_files $uri $uri/ =404;
-    }
+    # location / {
+    #     try_files $uri $uri/ =404;
+    # }
 
     ######### 旧的都写在一起了，所以这里用一个转发,后续加新的可以单独独立出来
 
@@ -315,3 +314,24 @@ server {
     #}
 }
 
+#http转发到https
+
+server {
+    listen 80;
+    
+
+    #填写绑定证书的域名
+    server_name 127.0.0.1;
+    # server_name www.weridolin.cn;
+
+
+    # 路径
+    access_log /var/log/nginx/http.www.weridolin.cn.access.log ;
+    error_log /var/log/nginx/http.www.weridolin.cn.error.log ;
+    
+    #（第一种）把http的域名请求转成https
+    return 307 https://$host$request_uri;
+    
+    #（第二种）强制将http的URL重写成https
+    # rewrite ^(.*) https://$server_name$1 permanent; 
+}
