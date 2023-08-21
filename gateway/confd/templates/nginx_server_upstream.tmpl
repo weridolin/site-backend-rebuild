@@ -150,18 +150,18 @@ server {
     root /usr/share/nginx/html/;
 
     # 400 500 页面
-    error_page  404 /404.html;    
-    error_page  500 /500.html;
-    error_page  401 /401.html;
+    #error_page  404 /404.html;    
+    #error_page  500 /500.html;
+    # error_page  401 /401.html;
 
     # 如果是以短重定向到正常链接
     if ($http_host ~ "^t.weridolin.cn") {
         rewrite ^(.*)  http://www.weridolin.cn/shortUrl/api/v1/$1 permanent;
     }
 
-    # location / {
-    #     try_files $uri $uri/ =404;
-    # }
+    location / {
+        try_files $uri $uri/ =404;
+    }
 
     ######### 旧的都写在一起了，所以这里用一个转发,后续加新的可以单独独立出来
 
@@ -174,18 +174,16 @@ server {
         # 鉴权s
         auth_request /token;
         auth_request_set $user $upstream_http_x_forwarded_user;
-        proxy_set_header X-User $user; # 可以传递Header
         add_header Set-Cookie $user; # 可以传递Cookie       
         #出现特定错误时跳转自定义的错误页面
         proxy_intercept_errors on; 
         #$1/api 后的参数 break：重写url后不再重新匹配
-        rewrite ^/api/?(.*)$ /api/$1 break;
+        # rewrite ^/api/?(.*)$ /api/$1 break;
         proxy_pass http://{{$domain}};
-        proxy_http_version 1.0;
-        proxy_set_header Connection "";
         proxy_pass_header       Authorization;
         proxy_pass_header       WWW-Authenticate;
         proxy_set_header Host $host;
+        proxy_set_header X-User $user; # 可以传递Header 
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Server-Name "{{$domain}}";  
@@ -300,7 +298,7 @@ server {
         proxy_pass http://usercenter/token/validate;
         proxy_pass_request_body off; # 不向上游发送包体
         proxy_set_header Content-Length ""; # 同上，看情况加或不加
-        proxy_set_header Content-Type "text/html; charset=utf-8"; # mutilpart/form-data会报错，所以改成text/html
+    #    proxy_set_header Content-Type "text/html; charset=utf-8"; # mutilpart/form-data会报错，所以改成text/html
         proxy_set_header X-Original-Request-URI $request_uri; # 传递真实请求路径
         proxy_set_header X-Original-URI $uri; # 传递真实访问者地址
         proxy_set_header X-Original-Remote-Addr $remote_addr; # 传递真实访问者地址
