@@ -29,7 +29,7 @@ services:
     #   - etcd
     # scale: 2
     networks:
-      - default
+      - site
 
   usercenter:
     env_file:
@@ -53,7 +53,7 @@ services:
       - GO111MODULE=on
       - GOPROXY=https://goproxy.cn/,direct
     networks:
-      - default
+      - site
     # depends_on:
     #   - etcd
     #   - sitedb
@@ -87,7 +87,7 @@ services:
       - siteoldbackend
       - alinlabWebhook
     networks:
-      - default
+      - site
 
   alinlabWebhook:
     env_file:
@@ -111,9 +111,13 @@ services:
       - GO111MODULE=on
       - GOPROXY=https://goproxy.cn/,direct
     networks:
-      - default   
+      - site   
 
 networks:
-  default:
-    name: kong-net
+  # default:
+  #   name: kong-net
+  #   external: true
+  site:
+    # name: site-net
+    # driver: bridge
     external: true
