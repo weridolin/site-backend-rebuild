@@ -55,7 +55,10 @@ jobs:
           ls
           yarn install
       - name: build
-        run: yarn build
+        run: |
+          yarn build
+          ls
+
       - name: SSH Server Deploy
         uses: kostya-ten/ssh-server-deploy@v4
         with:
