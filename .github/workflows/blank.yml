@@ -33,7 +33,8 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
+        with:
+          submodules: recursive
       # - name: Set working directory and run commands
       #   run: |
       #     echo "Working in the specified directory"
