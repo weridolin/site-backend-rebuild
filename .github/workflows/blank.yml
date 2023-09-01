@@ -26,11 +26,11 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-    - name: Set working directory and run commands
-      working-directory: ./front
-      run: |
-        echo "Working in the specified directory"
-        ls -la
+      - name: Set working directory and run commands
+        working-directory: ./front
+        run: |
+          echo "Working in the specified directory"
+          ls -la
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
