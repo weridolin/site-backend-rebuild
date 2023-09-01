@@ -31,9 +31,10 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set working directory and run commands
-        working-directory: ./front
+        # working-directory: ./front
         run: |
           echo "Working in the specified directory"
+          cd ./front
           ls -la
 
       - name: Use Node.js ${{ matrix.node-version }}
