@@ -34,7 +34,8 @@ jobs:
         working-directory: ${{github.workspace}}/front
         run: |
           echo "Working in the specified directory"
-          echo ${{github.workspace}}
+          echo ${{github.workspace}}/front
+          cd  ${{github.workspace}}/front
           ls -la
 
       - name: Use Node.js ${{ matrix.node-version }}
