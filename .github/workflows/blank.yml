@@ -50,7 +50,9 @@ jobs:
       - name: Install yarn  
         run: npm install -g yarn
       - name: install dependency
-        run: yarn install
+        run: |
+          ls
+          yarn install
       - name: build
         run: yarn build
       # - name: SSH Server Deploy
