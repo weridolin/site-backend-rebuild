@@ -25,12 +25,19 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
+
+    - name: Set working directory and run commands
+      working-directory: ./front
+      run: |
+        echo "Working in the specified directory"
+        ls -la
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
-        working-directory: ./front
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+      
       - name: Install yarn  
         run: npm install -g yarn
       - name: install dependency
