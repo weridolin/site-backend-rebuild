@@ -58,6 +58,11 @@ services:
     #   - etcd
     #   - sitedb
     #   - redis 
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
 
   front:
     env_file:
@@ -112,6 +117,11 @@ services:
       - GOPROXY=https://goproxy.cn/,direct
     networks:
       - site   
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "10"
 
 networks:
   # default:
