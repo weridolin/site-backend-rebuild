@@ -1,8 +1,19 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+# #!/usr/bin/env sh
+# . "$(dirname -- "$0")/_/husky.sh"
+
+# message="$(cat $1)"
+
+# echo "commit msg format check start..."
+# echo $message
+# echo "commit msg format check finish..."
+# exit 1
+#!/usr/bin/env python
+
+import sys, os
 
 message="$(cat $1)"
+print("commit msg format check start...")
+print(message)
+print("commit msg format check finish...")
 
-echo "commit msg format check start..."
-echo $message
-echo "commit msg format check finish..."
+exit(1)
