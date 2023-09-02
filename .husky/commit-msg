@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+message="$(cat $1)"
+echo "commit msg format check start..."
+echo $message
+echo "commit msg format check finish..."

@@ -3,3 +3,4 @@
 ./dist/*
 ./gateway/nginx/conf.d/*
 ./ssl/*
+node_modules/*
