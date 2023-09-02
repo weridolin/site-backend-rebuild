@@ -34,7 +34,7 @@ services:
   usercenter:
     env_file:
       - ../.env  
-    image: golang:latest
+    image: golang:1.18
     container_name: user-center
     working_dir: /app
     command:       
@@ -97,7 +97,7 @@ services:
   alinlabWebhook:
     env_file:
       - ../.env  
-    image: golang:latest
+    image: golang:1.18
     container_name: alinlab-Webhook
     working_dir: /app
     command:       
