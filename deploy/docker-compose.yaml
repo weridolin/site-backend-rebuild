@@ -20,8 +20,8 @@ services:
         gunicorn -c gunicorn.py core.asgi:application
     volumes:
       - ../oldbackend/:/app
-    # ports:
-    #   - 8000:8000
+    ports:
+      - 8000:8000
     #   - 9001:9001
     # depends_on:
     #   - sitedb
