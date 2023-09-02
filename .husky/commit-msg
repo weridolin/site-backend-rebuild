@@ -1,19 +1,18 @@
-# #!/usr/bin/env sh
-# . "$(dirname -- "$0")/_/husky.sh"
-
-# message="$(cat $1)"
-
-# echo "commit msg format check start..."
-# echo $message
-# echo "commit msg format check finish..."
-# exit 1
-#!/usr/bin/env python
-
-import sys, os
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
 message="$(cat $1)"
-print("commit msg format check start...")
-print(message)
-print("commit msg format check finish...")
 
-exit(1)
+echo "$message"
+# 正则表达式模式
+pattern="message:[\s\S]*\nauthor:[\s\S]*"
+
+# 校验输入字符串是否符合格式
+if [[ $message =~ $pattern ]]; then
+  echo "提交信息格式校验通过"
+else
+  echo "输入字符串不符合格式.必须为:
+        message:xxx 
+        author:xxx"
+  exit 1
+fi
