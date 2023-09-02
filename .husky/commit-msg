@@ -4,8 +4,9 @@
 message="$(cat $1)"
 
 echo "$message"
+
 # 正则表达式模式
-pattern="message:[\s\S]*\nauthor:[\s\S]*"
+pattern="message:[\s\S]*author:[\s\S]*"
 
 # 校验输入字符串是否符合格式
 if [[ $message =~ $pattern ]]; then
