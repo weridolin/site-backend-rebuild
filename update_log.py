@@ -37,6 +37,7 @@ def create_update_log():
     'Authorization': f'Bearer {token}',
     'Content-Type': 'application/json',
     }
+    print(payload,">>>")
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
