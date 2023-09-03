@@ -84,7 +84,7 @@ jobs:
           echo ${{ github.event.head_commit.author.name }}
           echo ${{ github.event.head_commit.url }}
 
-          COMMIT_DATETIME=$(date -d @${{ github.event.head_commit.timestamp }})
+          COMMIT_DATETIME=$(date -d ${{ github.event.head_commit.timestamp }})
           echo $COMMIT_DATETIME
 
       - name: Send Login Request
