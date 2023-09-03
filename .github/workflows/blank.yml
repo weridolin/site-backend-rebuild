@@ -69,14 +69,26 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           scp_source: ${{github.workspace}}/front/dist
           scp_target: /pythons/site-backend-rebuild/front
-      
 
-  update_old_backend:
-
+      - name: connect to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd /pythons/site-backend-rebuild
+            git pull
+            git submodule sync
+            git submodule update --init
+            docker-compose -f deploy/docker-compose.yaml down
+            docker-compose -f deploy/docker-compose.yaml up -d
+    
+  create_update_log:
+  
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Get Pull Request Info
         run: |
           echo ${{ github.event.head_commit.message }}
@@ -94,8 +106,6 @@ jobs:
         with:
           # Semantic version range syntax or exact version of a Python version
           python-version: '3.9'
-          # Optional - x64 or x86 architecture, defaults to x64
-          # architecture: 'x64'
       
       - name: Install dependencies
         run: |  
@@ -111,3 +121,21 @@ jobs:
           ls
           echo "python update_log.py   ${{ secrets.SITE_ADMIN_USER }} ${{ secrets.SITE_ADMIN_USER_PWD }} ${{ github.event.head_commit.message }} ${{ github.event.head_commit.id }} ${{ github.event.head_commit.timestamp }} ${{ github.event.head_commit.author.name }} ${{ github.event.head_commit.url }}"
           python update_log.py   ${{ secrets.SITE_ADMIN_USER }} ${{ secrets.SITE_ADMIN_USER_PWD }} ${{ github.event.head_commit.message }} ${{ github.event.head_commit.id }} ${{ github.event.head_commit.timestamp }} ${{ github.event.head_commit.author.name }} ${{ github.event.head_commit.url }}
+
+  # rebuild_service:
+  #   runs-on: ubuntu-latest
+    
+  #   steps:
+  #     - name: connect to server
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: ${{ secrets.SSH_USERNAME }}
+  #         password: ${{ secrets.SSH_PASSWORD }}
+  #         script: |
+  #           cd /pythons/site-backend-rebuild
+  #           git pull
+  #           git submodule sync
+  #           git submodule update --init
+  #           docker-compose -f deploy/docker-compose.yaml down
+  #           docker-compose -f deploy/docker-compose.yaml up -d
