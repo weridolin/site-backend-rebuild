@@ -103,4 +103,4 @@ jobs:
 
       - name: Create A update log
         run: |
-          run: python update_log.py   ${{ secrets.SITE_ADMIN_USER }} ${{ secrets.SITE_ADMIN_USER_PWD }} ${{ github.event.head_commit.message }} ${{ github.event.head_commit.id }} $COMMIT_DATETIME ${{ github.event.head_commit.author.name }} ${{ github.event.head_commit.url }}
+          python update_log.py   ${{ secrets.SITE_ADMIN_USER }} ${{ secrets.SITE_ADMIN_USER_PWD }} ${{ github.event.head_commit.message }} ${{ github.event.head_commit.id }} $COMMIT_DATETIME ${{ github.event.head_commit.author.name }} ${{ github.event.head_commit.url }}
