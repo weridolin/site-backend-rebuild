@@ -76,23 +76,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: connect to remote server by ssh and update service
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: "22"
-          script: |
-            echo begin to package backend
-            cd /pythons/site-backend-rebuild/
-            docker ps
-
-  insert_update_log:
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: connect to remote server by ssh and update service
+      - name: Get Pull Request Info
         run: |
-          echo 
+          PR_DATA=$(cat $GITHUB_EVENT_PATH | jq -r '.pull_request')
+          PR_NUMBER=$(echo $PR_DATA | jq -r '.number')
+          COMMIT_SHA=$(echo $PR_DATA | jq -r '.head.sha')
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B $COMMIT_SHA)
+
+          echo "Pull Request Number: $PR_NUMBER"
+          echo "Commit SHA: $COMMIT_SHA"
+          echo "Commit Message: $COMMIT_MESSAGE"
+
+          # 使用 git log 命令获取最新提交的时间
+          COMMIT_TIMESTAMP=$(git log -1 --format="%at")
+          # 将时间戳转换为人类可读的日期时间格式
+          COMMIT_DATETIME=$(date -d @$COMMIT_TIMESTAMP)
+
+      - name: Get user token
+        run: |
+
+      - name: Send Login Request
+        run: |
+          # 构建登录请求，这里使用示例的 curl 命令
+          LOGIN_RESPONSE=$(curl -X POST -d "username=${{ secrets.SITE_ADMIN_USER }}&password=${{ secrets.SITE_ADMIN_USER_PWD }}" http://www.weridolin.cn/usercenter/api/v1/login)
+
+          # 解析响应以获取令牌
+          TOKEN=$(echo $LOGIN_RESPONSE | jq -r '.data.access_token')
+
+          # # 存储令牌到 GitHub Actions Secrets
+          # echo "::add-secret::token=$TOKEN"
+
+          echo "get token $TOKEN"
+
+      - name: Create A update log
+        run: |
+          # 构建更新请求，这里使用示例的 curl 命令
+          # 注意：请替换为实际的请求信息和服务端地址
+          BODY='{
+            "repo_uri":"https://github.com/weridolin/site-backend-rebuild",
+            "commit_content":$COMMIT_MESSAGE,
+            "author":"更新日志作者",
+            "is_finish":false,
+            "commit_id":$COMMIT_SHA,
+            "finish_time":$COMMIT_DATETIME
+          }'
+          RESPONSE=$(curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d "$BODY" http://www.weridolin.cn/home/api/v1/updatelog)
+
+          # 输出响应内容
+          echo "Response: $RESPONSE"
