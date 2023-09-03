@@ -49,6 +49,7 @@ def create_update_log():
 
 if __name__ == '__main__':
     import sys
+    print(sys.argv)
     if len(sys.argv) < 7:
         print('参数不足')
         exit(1)
