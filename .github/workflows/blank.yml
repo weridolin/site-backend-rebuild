@@ -78,22 +78,14 @@ jobs:
     steps:
       - name: Get Pull Request Info
         run: |
-          PR_DATA=$(cat $GITHUB_EVENT_PATH | jq -r '.pull_request')
-          PR_NUMBER=$(echo $PR_DATA | jq -r '.number')
-          COMMIT_SHA=$(echo $PR_DATA | jq -r '.head.sha')
-          COMMIT_MESSAGE=$(git log -1 --pretty=%B $COMMIT_SHA)
+          echo ${{ github.event.head_commit.message }}
+          echo ${{ github.event.head_commit.id }}
+          echo ${{ github.event.head_commit.timestamp }}
+          echo ${{ github.event.head_commit.author.name }}
+          echo ${{ github.event.head_commit.url }}
 
-          echo "Pull Request Number: $PR_NUMBER"
-          echo "Commit SHA: $COMMIT_SHA"
-          echo "Commit Message: $COMMIT_MESSAGE"
-
-          # 使用 git log 命令获取最新提交的时间
-          COMMIT_TIMESTAMP=$(git log -1 --format="%at")
-          # 将时间戳转换为人类可读的日期时间格式
-          COMMIT_DATETIME=$(date -d @$COMMIT_TIMESTAMP)
-
-      - name: Get user token
-        run: |
+          COMMIT_DATETIME=$(date -d @${{ github.event.head_commit.timestamp }})
+          echo $COMMIT_DATETIME
 
       - name: Send Login Request
         run: |
@@ -113,7 +105,7 @@ jobs:
           # 构建更新请求，这里使用示例的 curl 命令
           # 注意：请替换为实际的请求信息和服务端地址
           BODY='{
-            "repo_uri":"https://github.com/weridolin/site-backend-rebuild",
+            "repo_uri":"https://github.com/weridolin/site-backend-rebuild"
             "commit_content":$COMMIT_MESSAGE,
             "author":"更新日志作者",
             "is_finish":false,
