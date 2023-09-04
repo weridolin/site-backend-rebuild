@@ -70,7 +70,7 @@ jobs:
           scp_source: ${{github.workspace}}/front/dist
           scp_target: /pythons/site-backend-rebuild/front
 
-      - name: connect to server
+      - name: restart docker service
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -81,8 +81,8 @@ jobs:
             git pull
             git submodule sync
             git submodule update --init
-            docker-compose -f deploy/docker-compose.yaml down
-            docker-compose -f deploy/docker-compose.yaml up -d
+            # docker-compose -f deploy/docker-compose.yaml down
+            # docker-compose -f deploy/docker-compose.yaml up -d
     
   create_update_log:
   
