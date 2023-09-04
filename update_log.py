@@ -44,6 +44,7 @@ def create_update_log():
     if response.status_code == 200:
         print('更新日志创建成功')
     else:
+        print(response.text,">>>")
         print('更新日志创建失败')
         exit(1)
 
