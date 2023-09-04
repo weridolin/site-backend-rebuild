@@ -70,6 +70,7 @@ jobs:
           scp_source: ${{github.workspace}}/front/dist
           scp_target: /pythons/site-backend-rebuild/front
 
+          
       - name: restart docker service
         uses: appleboy/ssh-action@master
         with:
