@@ -70,7 +70,7 @@ jobs:
           scp_source: ${{github.workspace}}/front/dist
           scp_target: /pythons/site-backend-rebuild/front
 
-          
+
       - name: restart docker service
         uses: appleboy/ssh-action@master
         with:
@@ -82,12 +82,13 @@ jobs:
             git pull
             git submodule sync
             git submodule update --init
-            # docker-compose -f deploy/docker-compose.yaml down
-            # docker-compose -f deploy/docker-compose.yaml up -d
+            docker-compose -f deploy/docker-compose.yaml down
+            docker-compose -f deploy/docker-compose.yaml up -d
     
   create_update_log:
-  
+    
     runs-on: ubuntu-latest
+    needs: package_front
 
     steps:
       - name: Get Pull Request Info
