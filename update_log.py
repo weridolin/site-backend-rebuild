@@ -41,7 +41,7 @@ def create_update_log():
 
     response = requests.request("POST", url, headers=headers, data=payload)
 
-    if response.status_code == 200:
+    if 300 > response.status_code >= 200:
         print('更新日志创建成功')
     else:
         print(response.text,">>>")
