@@ -90,6 +90,7 @@ services:
     image: golang:1.18
     container_name: alinlab-Webhook
     working_dir: /app
+    # scale: 2 
     command:       
       - /bin/bash
       - -c
@@ -100,8 +101,8 @@ services:
         modd -f modd.conf
     volumes:
       - ../alinlab-webhook:/app
-    ports:
-      - "14001:14001"
+    # ports:
+    #   - "14001:14001"
     environment:
       - GO111MODULE=on
       - GOPROXY=https://goproxy.cn/,direct

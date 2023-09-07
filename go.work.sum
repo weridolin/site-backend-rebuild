@@ -1,5 +1,4 @@
 github.com/cespare/xxhash v1.1.0 h1:a6HrQnmkObjyL+Gs60czilIUGqrzKutQD6XZog3p+ko=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0 h1:gmcG1KaJ57LophUzW0Hy8NmPhnMZb4M0+kPpLofRdBo=
-github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
-github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a h1:bbPeKD0xmW/Y25WS6cokEszi5g+S0QxI/d45PkRi7Nk=
-github.com/jackc/pgx/v5 v5.3.1 h1:Fcr8QJ1ZeLi5zsPZqQeUZhNhxfkkKBOgJuYkJHoBOtU=
+github.com/weridolin/site-gateway v0.0.0-20230725075919-94558a4d0eb8/go.mod h1:359/foYhDDQJ0SmUGpZFLhptGWWcuiomD6BMkwZ7sNo=
+github.com/weridolin/site-gateway v0.0.0-20230903075941-893f3a17d09a/go.mod h1:f8f22JNVEL9I3yxYXXL9D5/o3zcn5nHru1LNC2Xln7Y=

@@ -95,6 +95,18 @@ services:
     networks:
       - site
 
+  siterabbitmq:
+    env_file:
+      - ../.env
+    container_name: rabbitmq
+    image: rabbitmq:management
+    ports:
+      - 5672:5672
+      - 15672:15672
+      - 61613:61613
+    networks:
+      - site
+
 networks:
   # default:
   #   name: kong-net
