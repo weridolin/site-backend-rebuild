@@ -22,9 +22,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ${{github.workspace}}/front
+    # defaults:
+    #   run:
+    #     working-directory: ${{github.workspace}}/front
 
     strategy:
       matrix:
@@ -35,41 +35,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - name: Set working directory and run commands
-        run: |
-          echo "Working in the specified directory"
-          echo ${{github.workspace}}/front
-          cd  ${{github.workspace}}/front
-          ls -la
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          # cache: 'npm'
-      
-      - name: Install yarn  
-        run: npm install -g yarn
-      - name: install dependency
-        run: |
-          ls
-          yarn install
-      - name: build
-        run: |
-          yarn build
-          ls ${{github.workspace}}/front/dist
-          echo "${{ secrets.SSH_HOST }} ${{ secrets.SSH_USERNAME }} ${{ secrets.SSH_PASSWORD }}"
-
-      - name: SSH Server Deploy
-        uses: kostya-ten/ssh-server-deploy@v4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: "22"
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          scp_source: ${{github.workspace}}/front/dist
-          scp_target: /pythons/site-backend-rebuild/front
-
 
       - name: restart docker service
         uses: appleboy/ssh-action@master
