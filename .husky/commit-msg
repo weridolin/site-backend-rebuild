@@ -6,7 +6,7 @@ message="$(cat $1)"
 echo "$message"
 
 # 正则表达式模式
-pattern="^message:.+\nauthor:.+$"
+pattern="^message:(.*)author:(.*)$"
 
 # 校验输入字符串是否符合格式
 if [[ $message =~ $pattern ]]; then
