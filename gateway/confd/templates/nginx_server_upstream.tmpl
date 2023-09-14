@@ -120,8 +120,6 @@ upstream socketio_{{$server}} {
 
 server {
 
-
-
     # 监听 https 服务
     listen 443 ssl;
     # listen 80;
@@ -171,6 +169,12 @@ server {
     {{range $domain :=  $domains}}
     ## {{$domain}} 相关API
     location ^~ /{{$domain}}/ {
+        # jaeger
+        opentelemetry on;
+        opentelemetry_operation_name site-{{$domain}};
+        opentelemetry_propagate;
+        opentelemetry_trust_incoming_spans on;
+
         # 鉴权s
         auth_request /token;
         auth_request_set $user $upstream_http_x_forwarded_user;
@@ -186,7 +190,9 @@ server {
         proxy_set_header X-User $user; # 可以传递Header 
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Server-Name "{{$domain}}";  
+        proxy_set_header X-Server-Name "{{$domain}}";
+        set $dummy_val "$opentelemetry_context_traceparent";
+
     }
 
     {{$WSKey := printf "/site/withauth/%s/ws/*" $domain}}
@@ -231,9 +237,15 @@ server {
     {{range $domain :=  $domains}}
     ## {{$domain}} 相关API
     location ^~ /{{$domain}}/ { 
+        # jaeger
+        opentelemetry on;
+        opentelemetry_operation_name site-{{$domain}};
+        opentelemetry_propagate;
+        opentelemetry_trust_incoming_spans on;
+
         #出现特定错误时跳转自定义的错误页面
         proxy_intercept_errors on; 
-        #$1/api 后的参数 break：重写url后不再重新匹配
+        #$1/api 后的参数 break:重写url后不再重新匹配
         rewrite ^/api/?(.*)$ /api/$1 break;
         proxy_pass http://{{$domain}};
         proxy_http_version 1.0;
@@ -243,7 +255,9 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Server-Name "{{$domain}}";  
+        proxy_set_header X-Server-Name "{{$domain}}";
+        set $dummy_val "$opentelemetry_context_traceparent";
+
     }
 
     {{$WSKey := printf "/site/withoutauth/%s/ws/*" $domain}}
@@ -294,6 +308,13 @@ server {
 
     ## 用户鉴权
     location /token {
+        opentelemetry on;
+        opentelemetry_operation_name site-auth;
+        opentelemetry_propagate w3c;
+        opentelemetry_trust_incoming_spans on;
+        proxy_set_header Trace-id $opentelemetry_trace_id;
+        proxy_set_header Span-id $opentelemetry_span_id;
+
         internal; # 只允许内部调用，外部调用报404
         proxy_pass http://usercenter/token/validate;
         proxy_pass_request_body off; # 不向上游发送包体
@@ -304,6 +325,7 @@ server {
         proxy_set_header X-Original-Remote-Addr $remote_addr; # 传递真实访问者地址
         proxy_set_header X-Original-Host $host; # 传递真实请求地址
         proxy_set_header X-Original-Method $request_method; # 传递真实请求方法
+
 
     }
 

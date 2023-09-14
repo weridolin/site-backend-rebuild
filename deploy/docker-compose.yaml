@@ -58,7 +58,8 @@ services:
     env_file:
       - ../.env  
     container_name: site-nginx
-    image: nginx
+    image: nginx:1.24.0
+    # image: opentracing/nginx-opentracing:latest
     ports:
     - 80:80
     - 443:443
@@ -70,6 +71,7 @@ services:
     - ../gateway/confd/:/etc/confd/
     - /usr/site/logs/nginx/:/var/log/nginx/
     - /etc/ssl/:/etc/ssl/
+    - ../gateway/nginx/lib/:/nginx/lib/
     command:       
       - /bin/bash
       - -c
