@@ -1,4 +1,5 @@
 github.com/cespare/xxhash v1.1.0 h1:a6HrQnmkObjyL+Gs60czilIUGqrzKutQD6XZog3p+ko=
+github.com/go-sql-driver/mysql v1.7.1 h1:lUIinVbN1DY0xBg0eMOzmmtGoHwWBbvnWubQUrtU8EI=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0 h1:gmcG1KaJ57LophUzW0Hy8NmPhnMZb4M0+kPpLofRdBo=
 github.com/weridolin/site-gateway v0.0.0-20230725075919-94558a4d0eb8/go.mod h1:359/foYhDDQJ0SmUGpZFLhptGWWcuiomD6BMkwZ7sNo=
 github.com/weridolin/site-gateway v0.0.0-20230903075941-893f3a17d09a/go.mod h1:f8f22JNVEL9I3yxYXXL9D5/o3zcn5nHru1LNC2Xln7Y=
