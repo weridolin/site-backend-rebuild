@@ -28,14 +28,14 @@ services:
     depends_on:
       - elasticsearch
       
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 500M
-        reservations:
-          cpus: '0.25'
-          memory: 200M    
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.50'
+    #       memory: 500M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 200M    
   # collector:
   #   image: jaegertracing/jaeger-collector:1.18
   #   container_name: collector
@@ -96,12 +96,12 @@ services:
       - "9200:9200"
     networks:
       - site
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 500M
-        reservations:
-          cpus: '0.25'
-          memory: 200M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.50'
+    #       memory: 500M
+    #     reservations:
+    #       cpus: '0.25'
+    #       memory: 200M
 
