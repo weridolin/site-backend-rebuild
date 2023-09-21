@@ -60,4 +60,4 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           scp_source: ${{github.workspace}}/front/dist
-          scp_target: /pythons/site-backend-rebuild/front
+          scp_target: /site/site-backend-rebuild/front
