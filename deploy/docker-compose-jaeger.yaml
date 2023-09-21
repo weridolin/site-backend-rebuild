@@ -19,14 +19,14 @@ services:
       - "4318:4318"
     environment:
       - LOG_LEVEL=debug
-      - SPAN_STORAGE_TYPE=elasticsearch
-      - ES_SERVER_URLS=http://elasticsearch:9200
+      # - SPAN_STORAGE_TYPE=elasticsearch
+      # - ES_SERVER_URLS=http://elasticsearch:9200
       - COLLECTOR_OTLP_ENABLED=true
     networks:
       - site
 
-    depends_on:
-      - elasticsearch
+    # depends_on:
+    #   - elasticsearch
       
     # deploy:
     #   resources:
@@ -83,19 +83,19 @@ services:
   #   networks:
   #     - site
       
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    restart: always
-    # volumes:
-    #   - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-    environment:
-      - "discovery.type=single-node"
-    expose:
-      - "9200"
-    ports:
-      - "9200:9200"
-    networks:
-      - site
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+  #   restart: always
+  #   # volumes:
+  #   #   - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+  #   environment:
+  #     - "discovery.type=single-node"
+  #   expose:
+  #     - "9200"
+  #   ports:
+  #     - "9200:9200"
+  #   networks:
+  #     - site
     # deploy:
     #   resources:
     #     limits:
