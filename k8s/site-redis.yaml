@@ -1,0 +1,107 @@
+apiVersion: apps/v1	#与k8s集群版本有关，使用 kubectl api-versions 即可查看当前集群支持的版本
+kind: StatefulSet 	#该配置的类型，我们使用的是 Deployment
+metadata:	        #译名为元数据，即 Deployment 的一些基本属性和信息
+  name: site-redis-deployment	#Deployment 的名称
+  labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
+    app: redis	#为该Deployment设置key为app，value为nginx的标签
+spec:	        #这是关于该Deployment的描述，可以理解为你期待该Deployment在k8s中如何使用
+  replicas: 2	#使用该Deployment创建两个应用程序实例
+  selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
+    matchLabels: #选择包含标签app:nginx的资源即为下面template的模板中包含 app:nginx的模板
+      app: redis
+  template:	    #这是选择或创建的Pod的模板
+    metadata:	#Pod的元数据
+      labels:	#Pod的标签，上面的selector即选择包含标签app:nginx的Pod
+        app: redis
+    spec:	    #期望Pod实现的功能（即在pod中部署）
+      containers:	#生成container，与docker中的container是同一种
+      - name: redis	#container的名称
+        image: redis:latest  #创建container，该container默认80端口可访问
+        ports:
+        - containerPort: 6379
+          name: client
+        - containerPort: 16379
+          name: cluster
+        # command: ["redis-server", "/conf/redis.conf","--requirepass","werido"]
+        # env:
+        # - name: POD_IP
+        #   valueFrom:
+        #     fieldRef:
+        #       fieldPath: status.podIP
+        command:
+          - "redis-server"
+        args:
+          - "--requirepass"
+          - "werido"
+        volumeMounts:
+        - name: conf
+          mountPath: /conf # 挂载容器内的 /conf 到 conf 数据卷
+          readOnly: false
+        - name: redis-data
+          mountPath: /data # 挂载容器内的 /data 目录到 data 数据卷
+          readOnly: false
+      volumes: # 生命周期跟随POD
+      - name: conf
+        configMap:
+          name: site-config
+          defaultMode: 0755
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: pvc-redis-data
+  # volumeClaimTemplates: # 如果没有显示绑定 PersistentVolume ，会自动生成
+  # - metadata:
+  #     name: data
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     resources:
+  #       requests:
+  #         storage: 5Gi
+  #     storageClassName: standard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-srv
+  labels:
+    app: redis
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: redis
+  ports:
+    - name: redis-service
+      port: 6379
+      targetPort: 6379
+      nodePort: 30000 # 可以通过所在node的IP来访问
+  type: NodePort
+
+---
+### strorage
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-redis-data
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/k8s/redis/data
+    type: DirectoryOrCreate
+  claimRef: # 确保其他 volume不会绑定到该 PV
+    name: pvc-redis-data
+    namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-redis-data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-redis-data
+  storageClassName: ""

@@ -1,0 +1,67 @@
+apiVersion: networking.k8s.io/v1 
+kind: Ingress
+metadata:
+  name: usercenter-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "usercenterApiCall"
+    nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
+    nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /usercenter/$1
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+        auth_request /token/validate;
+        auth_request_set $user $upstream_http_x_forwarded_user;
+        add_header Set-Cookie $user; # 可以传递Cookie 
+        set $dummy_val "$opentelemetry_context_traceparent";
+    
+spec:
+  rules:
+  - http:
+      paths:
+      - path:  /usercenter/(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-usercenter
+            port:
+              number: 8080         
+  ingressClassName: nginx 
+  tls:
+  - hosts:
+    - weridolin.cn
+    secretName: site-tls
+
+--- 
+apiVersion: networking.k8s.io/v1 
+kind: Ingress
+metadata:
+  name: auth-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
+    nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
+    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "tokenValidation"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+        internal; # 只允许内部调用，外部调用报404
+        proxy_pass_request_body off; # 不向上游发送包体
+        proxy_set_header Content-Length ""; # 同上，看情况加或不加
+        proxy_set_header X-Original-Request-URI $request_uri; # 传递真实请求路径
+        proxy_set_header X-Original-URI $uri; # 传递真实访问者地址
+        proxy_set_header X-Original-Remote-Addr $remote_addr; # 传递真实访问者地址
+        proxy_set_header X-Original-Host $host; # 传递真实请求地址
+        proxy_set_header X-Original-Method $request_method; # 传递真实请求方法 
+
+spec:
+  rules:
+  - http:
+      paths:
+      - path: "/token/validate"
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-usercenter
+            port:
+              number: 8080         
+  ingressClassName: nginx 
+  tls:
+  - hosts:
+    - weridolin.cn
+    secretName: site-tls

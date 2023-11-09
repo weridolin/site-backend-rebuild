@@ -1,0 +1,188 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-nginx
+spec:
+  # replicas: 1
+  selector:
+    matchLabels:
+      app: web-nginx
+  template:
+    metadata:
+      labels:
+        app: web-nginx
+    spec:
+      containers:
+        - name: web-nginx
+          image: nginx:1.14.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+            - containerPort: 443
+              name: https
+          volumeMounts:
+          - name: web-nginx-config
+            mountPath: /etc/nginx/conf.d/
+          - name: nginx-lib
+            mountPath: /nginx/lib/
+          - name: nginx-log 
+            mountPath: /var/log/nginx/
+          - name: front-static
+            mountPath: /usr/share/nginx/html/
+          - name: conf
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+      volumes:
+        - name: web-nginx-config
+          persistentVolumeClaim:
+            claimName: pvc-nginx-conf
+        - name: nginx-lib
+          persistentVolumeClaim:
+            claimName: pvc-nginx-lib    
+        - name: nginx-log
+          persistentVolumeClaim:
+            claimName: pvc-nginx-log
+        - name: front-static
+          persistentVolumeClaim:
+            claimName: pvc-front-static
+        - name: conf
+          hostPath:
+            path: /site/site-backend-rebuild/gateway/nginx/conf/
+            type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-nginx-out
+spec:
+  type: NodePort
+  sessionAffinity: ClientIP
+  ports:
+    - name: web-nginx-http
+      port: 80
+      targetPort: 80
+      nodePort: 30080
+    - name: web-nginx-https
+      port: 443
+      targetPort: 443
+      nodePort: 30443
+  selector:
+    app: web-nginx
+
+---
+### mount-nginx-lib
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nginx-lib
+spec:
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/site-backend-rebuild/gateway/nginx/lib/  # nginx-lib配置目录 
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nginx-lib
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Mi
+  volumeName: pv-nginx-lib
+  storageClassName: "" # 必须指定储存类,相同储存类的PV才能挂载到PVC
+
+---
+### mount-nginx-log
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nginx-log
+spec:
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/logs/ # nginx-log配置目录 
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nginx-log
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Mi
+  volumeName: pv-nginx-log
+  storageClassName: "" # 必须指定储存类,相同储存类的PV才能挂载到PVC
+
+---
+### mount-static-front
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-front-static
+spec:
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/site-backend-rebuild/front/dist/ # front-static配置目录 
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-front-static
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Mi
+  volumeName: pv-front-static
+  storageClassName: "" # 必须指定储存类,相同储存类的PV才能挂载到PVC
+
+---
+### mount-static-front
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nginx-conf
+spec:
+  capacity:
+    storage: 200Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/site-backend-rebuild/gateway/nginx/conf.d/  # nginx-conf配置目录 
+    type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nginx-conf
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 200Mi
+  volumeName: pv-nginx-conf
+  storageClassName: "" # 必须指定储存类,相同储存类的PV才能挂载到PVC

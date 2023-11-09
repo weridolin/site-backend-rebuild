@@ -1,0 +1,97 @@
+apiVersion: apps/v1	#与k8s集群版本有关，使用 kubectl api-versions 即可查看当前集群支持的版本
+kind: StatefulSet 	#该配置的类型，我们使用的是 Deployment
+metadata:	        #译名为元数据，即 Deployment 的一些基本属性和信息
+  name: lab-webook-statefulset	#Deployment 的名称
+  labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
+    app: lab-webook-statefulset		#为该Deployment设置key为app，value为nginx的标签
+spec:
+  replicas: 1	#使用该Deployment创建两个应用程序实例
+  selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
+    matchLabels: #选择包含标签app:nginx的资源即为下面template的模板中包含 app:nginx的模板
+      app: lab-webook	
+  template:
+    metadata:	#Pod的元数据
+      labels:	#Pod的标签，上面的selector即选择包含标签app:nginx的Pod
+        app: lab-webook
+    spec:
+      containers:
+        - name: lab-webook
+          image: golang:1.18
+          ports:
+          - containerPort: 14001
+            name: webhook-port
+          env:
+            - name: GO111MODULE
+              value: "on"
+            - name: GOPROXY
+              value: https://goproxy.cn/,direct
+          workingDir: /app
+          volumeMounts:
+            - name: alinlab-webhook-app
+              mountPath: /app
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              echo 'start alin lab webhook server...'
+              go mod tidy
+              go install github.com/cortesi/modd/cmd/modd@latest
+              modd -f modd.conf
+          envFrom:
+            - configMapRef:
+                name: site-config
+
+      volumes:
+        - name: alinlab-webhook-app
+          persistentVolumeClaim:
+            claimName: pvc-alinlab-webhook-src-code
+
+--- 
+
+#### service
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-lab-webhook
+  labels:
+    app: svc-lab-webhook
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: lab-webook
+  ports:
+    - name: internal-service-alinlab-webhook-app
+      port: 8090          # 服务访问端口
+      targetPort: 14001       # 容器端口
+      nodePort: 30007      # NodePort
+  type: NodePort
+
+--- 
+### mount-alinlab-webhook-src-code
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-alinlab-webhook-src-code
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/site-backend-rebuild/alinlab-webhook # 源码目录 
+    type: DirectoryOrCreate
+  # claimRef: # 确保其他 volume不会绑定到该 PV
+  #   name: pvc-db-data
+  #   namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-alinlab-webhook-src-code
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-alinlab-webhook-src-code
+  storageClassName: "" # 必须指定储存类,相同储存类的PV才能挂载到PVC

@@ -1,0 +1,100 @@
+apiVersion: apps/v1	#与k8s集群版本有关，使用 kubectl api-versions 即可查看当前集群支持的版本
+kind: StatefulSet 	#该配置的类型，我们使用的是 Deployment
+metadata:	        #译名为元数据，即 Deployment 的一些基本属性和信息
+  name: site-usercenter-statefulset	#Deployment 的名称
+  labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
+    app: site-usercenter	#为该Deployment设置key为app，value为nginx的标签
+spec:
+  replicas: 1	#使用该Deployment创建两个应用程序实例
+  selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
+    matchLabels: #选择包含标签app:nginx的资源即为下面template的模板中包含 app:nginx的模板
+      app: site-usercenter	
+  template:
+    metadata:	#Pod的元数据
+      labels:	#Pod的标签，上面的selector即选择包含标签app:nginx的Pod
+        app: site-usercenter
+    spec:
+      containers:
+        - name: user-center
+          image: golang:1.18
+          ports:
+          - containerPort: 8080
+            name: usercenter-port
+          env:
+            # Define the environment variable
+            - name: GO111MODULE
+              value: "on"
+            - name: GOPROXY
+              value: https://goproxy.cn/,direct
+          workingDir: /app
+          volumeMounts:
+            - name: usercenter-app
+              mountPath: /app
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              echo 'start user center server...'
+              go mod tidy
+              go install github.com/cortesi/modd/cmd/modd@latest
+              go run  ./services/users/cmd/rest/users.go -f ./services/users/cmd/rest/etc/users.yaml
+          envFrom:
+            - configMapRef:
+                name: site-config
+
+      volumes:
+        - name: usercenter-app
+          persistentVolumeClaim:
+            claimName: pvc-usercenter-src-code
+
+--- 
+### mount-usercenter-src-code
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-usercenter-src-code
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/site-backend-rebuild/usercenter # 源码目录 
+    type: DirectoryOrCreate
+  # claimRef: # 确保其他 volume不会绑定到该 PV
+  #   name: pvc-db-data
+  #   namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-usercenter-src-code
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-usercenter-src-code
+
+
+--- 
+
+#### service
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-usercenter
+  labels:
+    app: svc-usercenter
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: site-usercenter
+  ports:
+    - name: internal-service-usercenter-app
+      port: 8080          # 服务访问端口
+      targetPort: 8080       # 容器端口
+      nodePort: 30006      # NodePort
+  type: NodePort
+

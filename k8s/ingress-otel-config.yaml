@@ -1,0 +1,21 @@
+controller:
+  config:
+    log-level: "debug"
+    enable-opentelemetry: "true"
+    opentelemetry-operation-name: "HTTP $request_method $service_name $uri"
+    opentelemetry-trust-incoming-span: "true"
+    otlp-collector-host: "jaeger.default"
+    otlp-collector-port: "4317"
+    otel-max-queuesize: "2048"
+    otel-schedule-delay-millis: "5000"
+    otel-max-export-batch-size: "512"
+    otel-service-name: "site-svc" # Opentelemetry resource name
+    otel-sampler: "AlwaysOn" # Also: AlwaysOff, TraceIdRatioBased
+    otel-sampler-ratio: "1.0"
+    otel-sampler-parent-based: "true"
+    log-format-upstream: '"$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$uri" $request_time [$proxy_upstream_name] [$proxy_alternative_upstream_name] $upstream_addr $upstream_response_length $upstream_response_time $upstream_status $req_id ["$opentelemetry_context_traceparent"]"'
+    http-snippet: |
+        opentelemetry on;
+        opentelemetry_capture_headers on;
+        add_header Server-Timing "traceparent;desc=\"$opentelemetry_context_traceparent\"";
+        opentelemetry_operation_name http-ingress;

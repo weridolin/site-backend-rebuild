@@ -1,0 +1,94 @@
+apiVersion: apps/v1	#与k8s集群版本有关，使用 kubectl api-versions 即可查看当前集群支持的版本
+kind: StatefulSet 	#该配置的类型，我们使用的是 StatefulSet
+metadata:	        #译名为元数据，即 Deployment 的一些基本属性和信息
+  name: site-db-deployment	#Deployment 的名称
+  labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
+    app: db	#为该Deployment设置key为app，value为nginx的标签
+spec:	        #这是关于该Deployment的描述，可以理解为你期待该Deployment在k8s中如何使用
+  replicas: 1	#使用该Deployment创建两个应用程序实例
+  selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
+    matchLabels: #选择包含标签app:nginx的资源即为下面template的模板中包含 app:nginx的模板
+      app: db
+  template:	    #这是选择或创建的Pod的模板
+    metadata:	#Pod的元数据
+      labels:	#Pod的标签，上面的selector即选择包含标签app:nginx的Pod
+        app: db
+    spec:	    #期望Pod实现的功能（即在pod中部署）
+      containers:	#生成container，与docker中的container是同一种
+      - name: db	#container的名称
+        image: postgres:12  #创建container，该container默认80端口可访问
+        ports:
+        - containerPort: 5432
+          name: db-port
+        env:
+          # Define the environment variable
+          - name: POSTGRES_USER 
+            valueFrom:
+              configMapKeyRef:
+                name: site-config
+                key: SITE_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: site-config
+                key: SITE_PASSWORD  
+          - name: PGDATA
+            valueFrom:
+              configMapKeyRef:
+                name: site-config
+                key: PGDATA         
+        volumeMounts:
+          - name: db-data
+            mountPath: /var/lib/postgresql/data/pgdata
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: pvc-db-data
+---
+#### service
+apiVersion: v1
+kind: Service
+metadata:
+  name: sitedb-srv
+  labels:
+    app: db
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: db
+  ports:
+    - name: db-service
+      port: 5432
+      targetPort: 5432
+      nodePort: 30001 # 可以通过所在node的IP来访问
+  type: NodePort
+
+--- 
+### strorage
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-db-data
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/k8s/db/data
+    type: DirectoryOrCreate
+  claimRef: # 确保其他 volume不会绑定到该 PV
+    name: pvc-db-data
+    namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-db-data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: pv-db-data

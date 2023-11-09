@@ -1,0 +1,101 @@
+apiVersion: apps/v1	#与k8s集群版本有关，使用 kubectl api-versions 即可查看当前集群支持的版本
+kind: StatefulSet 	#该配置的类型，我们使用的是 Deployment
+metadata:	        #译名为元数据，即 Deployment 的一些基本属性和信息
+  name: site-rabbit-deployment	#Deployment 的名称
+  labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
+    app: rabbit	#为该Deployment设置key为app，value为nginx的标签
+spec:	        #这是关于该Deployment的描述，可以理解为你期待该Deployment在k8s中如何使用
+  replicas: 2	#使用该Deployment创建两个应用程序实例
+  selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
+    matchLabels: #选择包含标签app:nginx的资源即为下面template的模板中包含 app:nginx的模板
+      app: rabbit
+  template:	    #这是选择或创建的Pod的模板
+    metadata:	#Pod的元数据
+      labels:	#Pod的标签，上面的selector即选择包含标签app:nginx的Pod
+        app: rabbit
+    spec:	    #期望Pod实现的功能（即在pod中部署）
+      containers:	#生成container，与docker中的container是同一种
+      - name: rabbit	#container的名称
+        image: rabbitmq:management #创建container，该container默认80端口可访问
+        ports:
+        - containerPort: 5672
+          name: client
+        - containerPort: 15672
+          name: management
+        - containerPort: 61613
+          name: cluster
+        env:
+          # Define the environment variable
+          - name: RABBITMQ_DEFAULT_USER
+            valueFrom:
+              configMapKeyRef:
+                name: site-config
+                key: RABBITMQ_DEFAULT_USER
+          - name: RABBITMQ_DEFAULT_PASS
+            valueFrom:
+              configMapKeyRef:
+                name: site-config
+                key: RABBITMQ_DEFAULT_PASS  
+          - name: RABBITMQ_ERLANG_COOKIE
+            valueFrom:
+              configMapKeyRef:
+                name: site-config
+                key: RABBITMQ_ERLANG_COOKIE 
+        volumeMounts:
+          - name: rabbitmq-data
+            mountPath: /var/lib/rabbitmq
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: pvc-rabbitmq-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-srv
+  labels:
+    app: rabbit
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: rabbit
+  ports:
+    - name: rabbitmq-srv-client
+      port: 5672
+      targetPort: 5672
+      nodePort: 30003 # 可以通过所在node的IP来访问
+    - name: rabbitmq-srv-management
+      port: 15672
+      targetPort: 15672
+      nodePort: 30004 # 可以通过所在node的IP来访问
+  type: NodePort
+--- 
+### strorage
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-rabbitmq-data
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /site/k8s/rabbitMqData
+    type: DirectoryOrCreate
+  claimRef: # 确保其他 volume不会绑定到该 PV
+    name: pvc-rabbitmq-data
+    namespace: default
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-rabbitmq-data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  volumeName: pv-rabbitmq-data

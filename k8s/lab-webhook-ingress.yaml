@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1 
+kind: Ingress
+metadata:
+  name: lab.webhook.ingress
+  annotations:
+    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "lab.webhook"
+    nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
+    nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+        auth_request /token/validate;
+        auth_request_set $user $upstream_http_x_forwarded_user;
+        add_header Set-Cookie $user; # 可以传递Cookie     
+        set $dummy_val "$opentelemetry_context_traceparent";   
+spec:
+  rules:
+  - http:
+      paths:
+      - path:  /webhook
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: svc-lab-webhook
+            port:
+              number: 8090         
+  ingressClassName: nginx 
+  tls:
+  - hosts:
+    - weridolin.cn
+    secretName: site-tls
