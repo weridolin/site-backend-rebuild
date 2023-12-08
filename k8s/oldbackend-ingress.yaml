@@ -24,7 +24,7 @@ spec:
             name: svc-site-oldbackend
             port:
               number: 8000  
-         
+        
   ingressClassName: nginx 
   tls:
   - hosts:

@@ -83,25 +83,25 @@ services:
   #   networks:
   #     - site
       
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-  #   restart: always
-  #   # volumes:
-  #   #   - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-  #   environment:
-  #     - "discovery.type=single-node"
-  #   expose:
-  #     - "9200"
-  #   ports:
-  #     - "9200:9200"
-  #   networks:
-  #     - site
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.50'
-    #       memory: 500M
-    #     reservations:
-    #       cpus: '0.25'
-    #       memory: 200M
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    restart: always
+    # volumes:
+    #   - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    environment:
+      - "discovery.type=single-node"
+    expose:
+      - "9200"
+    ports:
+      - "9200:9200"
+    networks:
+      - site
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 200M
 
