@@ -1,6 +1,3 @@
-[submodule "usercenter"]
-	path = usercenter
-	url = https://github.com/weridolin/site-gateway
 [submodule "oldbackend"]
 	path = oldbackend
 	url = https://github.com/weridolin/werido-site-backend
