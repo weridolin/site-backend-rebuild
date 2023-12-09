@@ -7,3 +7,6 @@
 [submodule "alinlab-webhook"]
 	path = alinlab-webhook
 	url = https://github.com/weridolin/alinLab-webhook
+[submodule "usercenter"]
+	path = usercenter
+	url = git@github.com:weridolin/site-usercenter.git
