@@ -4,7 +4,7 @@ processor = "batch"
 [exporters.otlp]
 # Alternatively the OTEL_EXPORTER_OTLP_ENDPOINT environment variable can also be used.
 host = "jaeger" 
-port = 4317
+port = 4318
 # Optional: enable SSL, for endpoints that support it
 # use_ssl = true
 # Optional: set a filesystem path to a pem file to be used for SSL encryption

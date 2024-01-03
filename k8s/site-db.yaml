@@ -36,7 +36,9 @@ spec:	        #这是关于该Deployment的描述，可以理解为你期待该D
             valueFrom:
               configMapKeyRef:
                 name: site-config
-                key: PGDATA         
+                key: PGDATA  
+          - name: TZ
+            value: Asia/Shanghai       
         volumeMounts:
           - name: db-data
             mountPath: /var/lib/postgresql/data/pgdata
