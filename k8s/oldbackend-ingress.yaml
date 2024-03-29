@@ -17,7 +17,7 @@ spec:
   rules:
   - http:
       paths:
-      - path:  /(apiCollector|blog|chatGPT|home|covid19|dataFaker|fileBroker|drug|shortUrl)
+      - path:  /(apiCollector|blog|chatGPT|home|covid19|dataFaker|fileBroker|drug|shortUrl|gpt|sse)
         pathType: ImplementationSpecific
         backend:
           service:
