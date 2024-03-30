@@ -9,8 +9,8 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /usercenter/$1
     nginx.ingress.kubernetes.io/configuration-snippet: |
         auth_request /token/validate;
-        auth_request_set $user $upstream_http_x_forwarded_user;
-        add_header Set-Cookie $user; # 可以传递Cookie 
+        auth_request_set $user_id $upstream_http_x_forwarded_user;
+        proxy_set_header X-User $user_id;
         set $dummy_val "$opentelemetry_context_traceparent";
     
 spec:
