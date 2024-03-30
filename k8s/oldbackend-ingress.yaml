@@ -4,6 +4,7 @@ metadata:
   name: oldbackend-ingress
   annotations:
     # nginx.ingress.kubernetes.io/rewrite-target: /usercenter/$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/opentelemetry-operation-name: "oldbackendApiCall"
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
@@ -17,14 +18,29 @@ spec:
   rules:
   - http:
       paths:
-      - path:  /(apiCollector|blog|chatGPT|home|covid19|dataFaker|fileBroker|drug|shortUrl|gpt|sse)
-        pathType: ImplementationSpecific
+      # - path:  /(apiCollector|blog|chatGPT|home|covid19|dataFaker|fileBroker|drug|shortUrl|gpt|sse)
+      #   pathType: ImplementationSpecific
+      - path: /gpt.*gpt-sse$
+        pathType: Prefix
         backend:
           service:
             name: svc-site-oldbackend
             port:
               number: 8000  
-        
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target:  /$1
+
+      - path: /(apiCollector|blog|chatGPT|home|covid19|dataFaker|fileBroker|drug|shortUrl|gpt|)(.*)$
+        pathType: Prefix
+        backend:
+          service:
+            name: svc-site-oldbackend
+            port:
+              number: 8000  
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target:  /$1/$2
+
+
   ingressClassName: nginx 
   tls:
   - hosts:
