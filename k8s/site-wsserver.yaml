@@ -3,7 +3,7 @@ kind: StatefulSet 	#该配置的类型，我们使用的是 Deployment
 metadata:	        #译名为元数据，即 Deployment 的一些基本属性和信息
   name: site-wsserver-statefulset	#Deployment 的名称
   labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
-    app: site-wsserver	#为该Deployment设置key为app，value为nginx的标签
+    app: site-wsserver #为该Deployment设置key为app，value为nginx的标签
 spec:
   replicas: 1	#使用该Deployment创建两个应用程序实例
   selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
@@ -108,7 +108,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /ws-api
+      - path: /ws
         pathType: Prefix
         backend:
           service:
