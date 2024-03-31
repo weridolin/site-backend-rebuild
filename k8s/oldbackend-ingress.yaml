@@ -12,6 +12,11 @@ metadata:
         auth_request_set $user_id $upstream_http_x_forwarded_user;
         proxy_set_header X-User $user_id;     
         set $dummy_val "$opentelemetry_context_traceparent";
+        if ($request_uri ~* "sse$") {
+            # 添加响应头，仅针对以 "sse" 结尾的路径,不缓存,实时返回
+            add_header X-Accel-Buffering  "no";
+
+        }
 
 spec:
   rules:
