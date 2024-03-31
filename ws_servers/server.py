@@ -74,5 +74,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    os.environ["API_KEY"] = "sk-721791a44be54b6abae98c91a1ab7cee"
     asyncio.run(main())
