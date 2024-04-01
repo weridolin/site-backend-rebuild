@@ -108,7 +108,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /ws
+      - path: /ws-endpoint
         pathType: Prefix
         backend:
           service:

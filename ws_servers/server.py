@@ -49,7 +49,7 @@ class QueryParamProtocol(websockets.WebSocketServerProtocol):
         except jwt.DecodeError:
             return http.HTTPStatus.UNAUTHORIZED, [], b"Invalid token"
         
-        if re.search(r"/gpt/\?token=([\s\S])*", path):
+        if re.search(r"/ws-endpoint/api/v1/gpt/\?token=([\s\S])*", path):
             self.app = "gpt"
             self.conversation_id = payload.get("conversation_id")
         else:
