@@ -39,7 +39,7 @@ async def create_handler(websocket):
 
 class QueryParamProtocol(websockets.WebSocketServerProtocol):
     async def process_request(self, path, headers):
-        if re.search(r"/ws-endpoint/api/v1/gpt/\?token=([\s\S])*", path):
+        if re.search(r"/ws-endpoint/api/v1/gpt\?token=([\s\S])*", path):
             token = get_query_param(path=path, key="token")
             print("token",token)
             try:
