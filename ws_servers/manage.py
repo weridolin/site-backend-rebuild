@@ -16,8 +16,11 @@ class WsConnManager:
         self.conn_map = dict({
             "gpt":dict()
         })
+        rabbit_mq_url= f"amqp://{os.environ.get('RABBITMQ_DEFAULT_USER','werido')} :{os.environ.get('RABBITMQ_DEFAULT_PASS','359066432')} @{os.environ.get('RABBITMQ_SVC_NAME','43.128.110.230')}:{os.environ.get('RABBITMQ_PORT','30003')}/"
+        logger.info(f"rabbit mq url -> {rabbit_mq_url}")
         self.rabbitmq = WebSocketNodeConsumer(
-            amqp_url=os.environ.get("RABBITMQ_URI",'amqp://werido:359066432@43.128.110.230:30003/%2F'),
+            # amqp_url=
+            amqp_url=rabbit_mq_url,
             on_message_callback=self.on_rabbitmq_message
         )
         self.rabbitmq.run()

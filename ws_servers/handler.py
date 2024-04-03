@@ -103,26 +103,35 @@ class GptWebsocketHandle(BaseHandle):
                             "role": "user",
                             "content": "你好，哪个公园距离我最近？"
                         }
-                ]
+                ],
+                "api_key":"123456",
             }
         """
         platform,model = msg.get("platform"),msg.get("model")
         if platform=="ali":
             message = msg.get("history",[])
             query_message_uuid  = msg.get("uuid",None)
+            api_key = msg.get("api_key",None)
+            if not api_key:
+                logger.error(f"api key not found in message -> {msg}")
+                return
             if not query_message_uuid:
                 logger.error(f"message uuid not found in message -> {msg}")
                 return
-            req = AliHttpRequest(query_message_uuid=query_message_uuid,callback_url=msg.get("callback_url"),callback_url_grpc=msg.get("callback_url_grpc"))
+            req = AliHttpRequest(
+                query_message_uuid=query_message_uuid,
+                callback_url=msg.get("callback_url"),
+                callback_url_grpc=msg.get("callback_url_grpc")
+            )
             task = asyncio.create_task(req.request(
                 model=model,
                 messages=message,
-                ws_conn=self
+                ws_conn=self,
+                api_key=api_key
             ))
             if self.req_map.get(msg["conversation_id"]):
                 logger.info(f"interrupt by new message, conversation id -> {msg['conversation_id']}")
                 self.cancel_task(msg["conversation_id"])
-                # req.
             self.req_map.update({msg["conversation_id"]:(req,task)})
 
 

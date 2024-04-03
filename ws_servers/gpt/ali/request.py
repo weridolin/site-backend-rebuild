@@ -56,10 +56,12 @@ class HttpRequest(HttpMixins):
         stream:bool=True,
         enable_search:bool=False,
         incremental_output:bool=True,
+        api_key = None,
         ws_conn = None
     ):
         self.ws_conn = ws_conn
         config = AliChatConfig.from_env()
+        config.API_KEY = api_key
         header = {
             "Authorization": f"Bearer {config.API_KEY}",
             "Content-Type": "application/json",

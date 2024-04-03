@@ -39,17 +39,16 @@ async def create_handler(websocket):
 
 class QueryParamProtocol(websockets.WebSocketServerProtocol):
     async def process_request(self, path, headers):
-        token = get_query_param(path=path, key="token")
-        print("token",token)
-        try:
-            payload = decode_token(token)
-            self.token_payload = payload
-            self.user_id = payload.get("user_id")
-            self.websocket_id = payload.get("websocket_id")
-        except jwt.DecodeError:
-            return http.HTTPStatus.UNAUTHORIZED, [], b"Invalid token"
-        
         if re.search(r"/ws-endpoint/api/v1/gpt/\?token=([\s\S])*", path):
+            token = get_query_param(path=path, key="token")
+            print("token",token)
+            try:
+                payload = decode_token(token)
+                self.token_payload = payload
+                self.user_id = payload.get("user_id")
+                self.websocket_id = payload.get("websocket_id")
+            except jwt.DecodeError:
+                return http.HTTPStatus.UNAUTHORIZED, [], b"Invalid token"
             self.app = "gpt"
             self.conversation_id = payload.get("conversation_id")
         else:
