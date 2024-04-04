@@ -53,10 +53,10 @@ class BaseHandle:
     def open(self):
         return self.websocket.state == server.State.OPEN
     
-    def cancel_task(self,conversation_id):
+    def cancel_task(self,conversation_id,interrupt_reason="interrupt by new message"):
         old_req,old_task = self.req_map[conversation_id]
         old_req.interrupt = True
-        old_req.interrupt_reason = "interrupt by new message"
+        old_req.interrupt_reason = interrupt_reason
         old_task.cancel()
 
     def on_rabbitmq_message(self,msg):
@@ -111,6 +111,7 @@ class GptWebsocketHandle(BaseHandle):
         if platform=="ali":
             message = msg.get("history",[])
             query_message_uuid  = msg.get("uuid",None)
+            conversation_id = msg.get("conversation_id",None)
             api_key = msg.get("api_key",None)
             if not api_key:
                 logger.error(f"api key not found in message -> {msg}")
@@ -121,7 +122,8 @@ class GptWebsocketHandle(BaseHandle):
             req = AliHttpRequest(
                 query_message_uuid=query_message_uuid,
                 callback_url=msg.get("callback_url"),
-                callback_url_grpc=msg.get("callback_url_grpc")
+                callback_url_grpc=msg.get("callback_url_grpc"),
+                conversation_id=conversation_id
             )
             task = asyncio.create_task(req.request(
                 model=model,
@@ -141,6 +143,13 @@ class GptWebsocketHandle(BaseHandle):
         if isinstance(msg,str):
             try:
                 msg = json.loads(msg)
+                if msg.get("type")=="stop":
+                    conversation_id = msg.get("conversation_id")
+                    message_id = msg.get("message_id")
+                    if conversation_id and self.req_map.get(conversation_id):
+                        logger.info(f"interrupt by user, conversation id -> {conversation_id}")
+                        self.cancel_task(conversation_id,interrupt_reason="interrupt by user")
+                        return
             except json.JSONDecodeError:
                 logger.error(f"message is not a valid json format -> {msg}")
                 return

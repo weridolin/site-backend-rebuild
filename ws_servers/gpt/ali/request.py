@@ -42,11 +42,12 @@ class AliRequestBody:
 
 class HttpRequest(HttpMixins):
 
-    def __init__(self,query_message_uuid=None,callback_url=None,callback_url_grpc=None) -> None:
+    def __init__(self,query_message_uuid=None,callback_url=None,callback_url_grpc=None,conversation_id=None) -> None:
         super().__init__()
         self.query_message_uuid = query_message_uuid
         self.callback_url = callback_url
         self.callback_url_grpc = callback_url_grpc
+        self.conversation_id = conversation_id
 
     async def request(
         self,
@@ -103,16 +104,22 @@ class HttpRequest(HttpMixins):
         await self.on_finish()
 
     def on_event(self,event:EventStream):
-
         if event.event_type == "result":
             ## 处理结果 
             try:
                 data = json.loads(event.event_data)
                 content = data["output"]["choices"][0]["message"]["content"]
                 self.total_reply += content
+                message = {
+                    "conversation_id":self.conversation_id,
+                    "message_id":self.query_message_uuid,
+                    "content":content,
+                    "content_type":"text",
+                    "type":"message",
+                }
                 ## 发送推送消息到RQ供websocket推送服务消费
                 if hasattr(self,"ws_conn") and self.ws_conn:
-                    asyncio.create_task(self.ws_conn.send(content))
+                    asyncio.create_task(self.ws_conn.send(json.dumps(message,ensure_ascii=False)))
             except json.JSONDecodeError:
                 data = event.event_data
                 self.total_reply += data
