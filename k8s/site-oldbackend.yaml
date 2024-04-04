@@ -55,10 +55,15 @@ spec:
   selector:
     app: site-oldbackend
   ports:
-    - name: internal-service-django-app
+    - name: internal-service-django-rest
       port: 8000          # 服务访问端口
       targetPort: 8000       # 容器端口
       nodePort: 30010     # NodePort
+
+    - name: internal-service-django-grpc
+      port: 50001          # 服务访问端口
+      targetPort: 50001       # 容器端口
+      nodePort: 30011     # NodePort
   type: NodePort
 
 --- 
