@@ -63,7 +63,7 @@ spec:
     - name: internal-service-django-grpc
       port: 50001          # 服务访问端口
       targetPort: 50001       # 容器端口
-      nodePort: 30011     # NodePort
+      nodePort: 30022     # NodePort
   type: NodePort
 
 --- 
