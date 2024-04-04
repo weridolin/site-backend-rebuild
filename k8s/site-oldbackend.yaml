@@ -26,9 +26,11 @@ spec:
             mkdir /root/.pip/
             cp pip.conf /root/.pip/pip.conf
             pip install -r requirements.txt  --default-timeout=1000
-            supervisord  -c celery.conf
+            echo "start oldbackend grpc server"
+            supervisord  -c grpc.conf
             python manage.py makemigrations
             python manage.py migrate
+            echo "start oldbackend rest server"
             gunicorn -c gunicorn.py core.asgi:application
         volumeMounts:
           - name: django-app
