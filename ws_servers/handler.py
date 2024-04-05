@@ -107,6 +107,7 @@ class GptWebsocketHandle(BaseHandle):
                 "api_key":"123456",
             }
         """
+        print(f"get message from rabbitmq -> {msg}")
         platform,model = msg.get("platform"),msg.get("model")
         if platform=="ali":
             message = msg.get("history",[])
