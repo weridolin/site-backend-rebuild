@@ -198,7 +198,7 @@ class WebSocketNodeConsumer(object):
         """
         LOGGER.info('Declaring queue %s', queue_name)
         cb = functools.partial(self.on_queue_declareok, userdata=queue_name)
-        self._channel.queue_declare(queue=queue_name, callback=cb,exclusive=True,durable=True)
+        self._channel.queue_declare(queue=queue_name, callback=cb,durable=True,auto_delete=False)
 
     def on_queue_declareok(self, _unused_frame, userdata):
         """Method invoked by pika when the Queue.Declare RPC call made in
