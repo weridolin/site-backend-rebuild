@@ -146,7 +146,7 @@ class GptWebsocketHandle(BaseHandle):
                 msg = json.loads(msg)
                 if msg.get("type")=="stop":
                     conversation_id = msg.get("conversation_id")
-                    message_id = msg.get("message_id")
+                    # message_id = msg.get("message_id")
                     if conversation_id and self.req_map.get(conversation_id):
                         logger.info(f"interrupt by user, conversation id -> {conversation_id}")
                         self.cancel_task(conversation_id,interrupt_reason="interrupt by user")

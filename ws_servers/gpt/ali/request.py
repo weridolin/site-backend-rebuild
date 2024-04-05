@@ -89,7 +89,7 @@ class HttpRequest(HttpMixins):
                         res = res.rstrip('\n').rstrip('\r')
                         self.parse_raw(res)
                         if self.interrupt:
-                            logger.info(f"ali gpt request finish,update result back to DB")
+                            logger.info(f"ali gpt request was interrupt,update result back to DB")
                             break
                 else:
                     res = json.loads(await response.text())
@@ -100,7 +100,7 @@ class HttpRequest(HttpMixins):
                         self.error_detail = res.get("message")
                         ### todo 发送错误消息到websocket
                         await self.ws_conn.send(json.dumps({"error":res.get("message")}))
-
+        # logger.info(f"ali gpt request was interrupt,update result back to DB")
         await self.on_finish()
 
     def on_event(self,event:EventStream):
@@ -157,6 +157,17 @@ class HttpRequest(HttpMixins):
                         logger.info("ali gpt request update result back to DB success")
                     else:
                         logger.error(f"ali gpt request update result back to DB error -> {response.status} {await response.text()}")
+        
+        ## 通过WS发送结束消息
+        if hasattr(self,"ws_conn") and self.ws_conn:
+            logger.info(f"ali gpt request finish, conversation id -> {self.conversation_id}")
+            await self.ws_conn.send(json.dumps({
+                "type":"reply_finish",
+                "conversation_id":self.conversation_id,
+                "message_id":self.query_message_uuid,
+                "content":"",
+                "content_type":"",
+            }))
     
     async def callback_by_rpc(self):
         logger.info(f"ali gpt request update result back to DB by grpc, address -> {self.callback_url_grpc}")
