@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=C0111,C0103,R0205
+
 
 import functools
 import logging
@@ -13,7 +13,6 @@ import asyncio
 LOG_FORMAT = ('%(levelname) -s %(asctime)s %(name) -s %(funcName) '
             '-s %(lineno) -d: %(message)s')
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
-
 
 LOGGER = logging.getLogger(__name__)
 
