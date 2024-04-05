@@ -109,7 +109,7 @@ class GptWebsocketHandle(BaseHandle):
         """
         print(f"get message from rabbitmq -> {msg}")
         platform,model = msg.get("platform"),msg.get("model")
-        if platform=="ali":
+        if platform=="通义千问":
             message = msg.get("history",[])
             query_message_uuid  = msg.get("uuid",None)
             conversation_id = msg.get("conversation_id",None)
