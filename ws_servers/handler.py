@@ -10,29 +10,36 @@ logger = logging.getLogger(__name__)
 
 class BaseHandle:
     
-    def __init__(self, websocket):
+    def __init__(self, websocket,manger=None):
         self.websocket = websocket
         self.close = False
-        self.manager = get_manager()
+        self.manager = manger or get_manager()
         self.manager.register_conn(self.websocket.app,self.websocket.websocket_id,self)
         self.req_map = dict() ## 储存当前正在进行中的对话 conversation_id:(req,task)
 
     async def on_connect(self) -> None:
         logger.info("new websocket client connect,websocket id -> %s",self.websocket.websocket_id)
+        self.manager.rabbitmq.add_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
         await asyncio.sleep(0)
-    # async def on_disconnect(self) -> None:
-    #     logger.info("websocket client disconnect")
+
+    async def on_disconnect(self) -> None:
+        logger.info("websocket client disconnect")
+    #     self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
+    #     self.manager.rabbitmq.remove_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
 
     async def on_error(self, exc: Exception) -> None:
-        if not isinstance(exc, WsExceptions.ConnectionClosedError):
+        if not isinstance(exc, WsExceptions.ConnectionClosedOK):
             logger.error(f"websocket handle error -> {exc} ",exc_info=True)
         else:
             logger.info(f"websocket conn closed, id: {self.websocket.websocket_id}")
         self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
+        self.manager.rabbitmq.remove_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
+
 
     async def on_close(self,code,reason) -> None:
         logger.info(f"websocket handle close -> {code} {reason}")
         self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
+        self.manager.rabbitmq.remove_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
 
     async def dispatch(self) -> None:
         raise NotImplementedError
@@ -68,9 +75,6 @@ class BaseHandle:
 
 
 class GptWebsocketHandle(BaseHandle):
-
-    def __init__(self, websocket):
-        super().__init__(websocket)
 
     async def dispatch(self):
         while not self.close:

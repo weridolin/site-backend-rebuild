@@ -19,7 +19,6 @@ class WsConnManager:
         rabbit_mq_url= f"amqp://{os.environ.get('RABBITMQ_DEFAULT_USER','werido')}:{os.environ.get('RABBITMQ_DEFAULT_PASS','359066432')}@{os.environ.get('RABBITMQ_SVC_NAME','43.128.110.230')}:{os.environ.get('RABBITMQ_PORT','30003')}/"
         logger.info(f"rabbit mq url -> {rabbit_mq_url}")
         self.rabbitmq = WebSocketNodeConsumer(
-            # amqp_url=
             amqp_url=rabbit_mq_url,
             on_message_callback=self.on_rabbitmq_message
         )
@@ -85,3 +84,5 @@ def get_manager():
     if __manager is None:
         __manager = WsConnManager()
     return __manager
+
+

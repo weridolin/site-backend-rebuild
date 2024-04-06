@@ -17,11 +17,11 @@ logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 LOGGER = logging.getLogger(__name__)
 
 class WebSocketNodeConsumer(object):
-
+    """
+    """
     EXCHANGE = 'rest-svc'
     EXCHANGE_TYPE = ExchangeType.topic
-    QUEUE = 'rest-svc.messages'+ str(uuid.uuid4())
-    ROUTING_KEY = 'gpt.#'
+    QUEUE = 'rest-svc.messages'
 
     def __init__(self, amqp_url,on_message_callback=None):
         
@@ -197,29 +197,47 @@ class WebSocketNodeConsumer(object):
 
         """
         LOGGER.info('Declaring queue %s', queue_name)
-        cb = functools.partial(self.on_queue_declareok, userdata=queue_name)
-        self._channel.queue_declare(queue=queue_name, callback=cb,durable=True,auto_delete=False)
+        # cb = functools.partial(self.on_queue_declareok, userdata=queue_name)
+        self._channel.queue_declare(queue=queue_name,auto_delete=True)
+        self.start_consuming()
 
-    def on_queue_declareok(self, _unused_frame, userdata):
-        """Method invoked by pika when the Queue.Declare RPC call made in
-        setup_queue has completed. In this method we will bind the queue
-        and exchange together with the routing key by issuing the Queue.Bind
-        RPC command. When this command is complete, the on_bindok method will
-        be invoked by pika.
 
-        :param pika.frame.Method _unused_frame: The Queue.DeclareOk frame
-        :param str|unicode userdata: Extra user data (queue name)
-
-        """
-        queue_name = userdata
-        LOGGER.info('Binding %s to %s with %s', self.EXCHANGE, queue_name,
-                    self.ROUTING_KEY)
-        cb = functools.partial(self.on_bindok, userdata=queue_name)
+    def add_subscribe(self, routing_key):
+        LOGGER.info('Binding %s to %s with %s', self.EXCHANGE, self.QUEUE,routing_key)
+        cb = functools.partial(self.on_bindok, userdata=self.QUEUE)
         self._channel.queue_bind(
-            queue_name,
+            self.QUEUE,
             self.EXCHANGE,
-            routing_key=self.ROUTING_KEY,
+            routing_key=routing_key,
             callback=cb)
+
+    def remove_subscribe(self, routing_key):
+        LOGGER.info('Unbinding %s to %s with %s', self.EXCHANGE, self.QUEUE,routing_key)
+        self._channel.queue_unbind(
+            self.QUEUE,
+            self.EXCHANGE,
+            routing_key=routing_key)
+
+    # def on_queue_declareok(self, _unused_frame, userdata):
+    #     """Method invoked by pika when the Queue.Declare RPC call made in
+    #     setup_queue has completed. In this method we will bind the queue
+    #     and exchange together with the routing key by issuing the Queue.Bind
+    #     RPC command. When this command is complete, the on_bindok method will
+    #     be invoked by pika.
+
+    #     :param pika.frame.Method _unused_frame: The Queue.DeclareOk frame
+    #     :param str|unicode userdata: Extra user data (queue name)
+
+    #     """
+    #     queue_name = userdata
+    #     LOGGER.info('Binding %s to %s with %s', self.EXCHANGE, queue_name,
+    #                 self.ROUTING_KEY)
+    #     cb = functools.partial(self.on_bindok, userdata=queue_name)
+    #     self._channel.queue_bind(
+    #         queue_name,
+    #         self.EXCHANGE,
+    #         routing_key=self.ROUTING_KEY,
+    #         callback=cb)
 
     def on_bindok(self, _unused_frame, userdata):
         """Invoked by pika when the Queue.Bind method has completed. At this
@@ -251,7 +269,7 @@ class WebSocketNodeConsumer(object):
 
         """
         LOGGER.info('QOS set to: %d', self._prefetch_count)
-        self.start_consuming()
+        # self.start_consuming()
 
     def start_consuming(self):
         """This method sets up the consumer by first calling
@@ -434,3 +452,4 @@ def start_rabbitmq():
 
 if __name__ == '__main__':
     start_rabbitmq()
+    asyncio.get_event_loop().run_forever()

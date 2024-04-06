@@ -7,9 +7,9 @@ import urllib.parse
 import uuid,jwt,sys,os
 from handler import GptWebsocketHandle
 import websockets
-import re
-import argparse
-from client.rabbitmq import start_rabbitmq,WebSocketNodeConsumer
+import re,functools
+from manage import get_manager
+
 
 LOG_FORMAT = ('%(levelname) -s %(asctime)s %(name) -s %(funcName) '
             '-s %(lineno) -d: %(message)s')
@@ -27,9 +27,9 @@ def get_query_param(path, key):
     if len(values) == 1:
         return values[0]
 
-async def create_handler(websocket):  
+async def create_handler(websocket,manager):
     if websocket.app == "gpt":
-        handler = GptWebsocketHandle(websocket)
+        handler = GptWebsocketHandle(websocket,manger=manager)
     else:
         raise NotImplementedError(f"App {websocket.app} handler not implemented")
     
@@ -61,8 +61,9 @@ async def main():
     stop = loop.create_future()
     # loop.add_signal_handler(signal.SIGINT, stop.set_result, None)
     # loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
+    manager = get_manager()
     async with websockets.serve(
-        create_handler,
+        functools.partial(create_handler,manager=manager),
         host="0.0.0.0",
         port=8001,
         create_protocol=QueryParamProtocol,
