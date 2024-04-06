@@ -4,5 +4,6 @@
 ./ssl/*
 node_modules/*
 /ws_servers/venv/*
-/ws_servers/__pycache__/*
+./ws_servers/__pycache__/*
 ./gateway/nginx/conf.d/upstream.conf
+*/__pycache__/*
