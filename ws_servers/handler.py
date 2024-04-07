@@ -63,6 +63,7 @@ class BaseHandle:
     def cancel_task(self,conversation_id,interrupt_reason="interrupt by new message"):
         try:
             old_req,old_task = self.req_map[conversation_id]
+            logger.info(f"cancel task, -> {old_req},{old_task}")
             old_req.interrupt = True
             old_req.interrupt_reason = interrupt_reason
             old_task.cancel()
