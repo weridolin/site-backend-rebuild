@@ -66,7 +66,7 @@ class BaseHandle:
             logger.info(f"cancel task, -> {old_req},{old_task}")
             old_req.interrupt = True
             old_req.interrupt_reason = interrupt_reason
-            old_task.cancel()
+            # old_task.cancel()
         except Exception as exc:
             logger.error(f"cancel task error -> {exc}")
 
