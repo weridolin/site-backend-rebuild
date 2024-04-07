@@ -182,10 +182,10 @@ class HttpRequest(HttpMixins):
                     interrupt_reason=self.interrupt_reason,
                     query_message_id=self.query_message_uuid
             ))
-            # if response.success:
-            #     logger.info("ali gpt request update result back to DB success")
-            # else:
-            #     logger.error("ali gpt request update result back to DB success error ")            
+            if response.success:
+                logger.info("ali gpt request update result back to DB success")
+            else:
+                logger.error("ali gpt request update result back to DB success error ")            
         
 if __name__ =="__main__":
     # import asyncio,os
