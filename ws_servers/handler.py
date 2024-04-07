@@ -61,10 +61,13 @@ class BaseHandle:
         return self.websocket.state == server.State.OPEN
     
     def cancel_task(self,conversation_id,interrupt_reason="interrupt by new message"):
-        old_req,old_task = self.req_map[conversation_id]
-        old_req.interrupt = True
-        old_req.interrupt_reason = interrupt_reason
-        old_task.cancel()
+        try:
+            old_req,old_task = self.req_map[conversation_id]
+            old_req.interrupt = True
+            old_req.interrupt_reason = interrupt_reason
+            old_task.cancel()
+        except Exception as exc:
+            logger.error(f"cancel task error -> {exc}")
 
     def on_rabbitmq_message(self,msg):
         raise NotImplementedError
