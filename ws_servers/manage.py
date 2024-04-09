@@ -14,7 +14,7 @@ class WsConnManager:
 
     def __init__(self) -> None:
         self.conn_map = dict({
-            "gpt":dict()
+            "site.alinlab.gpt":dict()
         })
         rabbit_mq_url= f"amqp://{os.environ.get('RABBITMQ_DEFAULT_USER','werido')}:{os.environ.get('RABBITMQ_DEFAULT_PASS','359066432')}@{os.environ.get('RABBITMQ_SVC_NAME','43.128.110.230')}:{os.environ.get('RABBITMQ_PORT','30003')}/"
         logger.info(f"rabbit mq url -> {rabbit_mq_url}")
@@ -53,26 +53,24 @@ class WsConnManager:
         try:
             msg = json.loads(body)
             from_app = msg.get("from_app",None)
-            user_id = msg.get("user_id",None)
+            # user_id = msg.get("user_id",None)
             websocket_id = msg.get("websocket_id",None)
             exp = msg.get("exp",None)
-            
-            if not user_id or not websocket_id or not from_app:
-                logger.error(f"user id  or websocket id or from_app not found in message")
+            if not websocket_id or not from_app:
+                logger.error(f"websocket id or from_app not found in message")
                 return
             if datetime.datetime.now().timestamp() > exp:
                 logger.error(f"message expired at {exp},now is {datetime.datetime.now().timestamp()}")
                 return
-
-            if from_app == "gpt":
-                conn = self.get_conn(from_app,websocket_id)
-                if conn:
-                    if hasattr(conn,"on_rabbitmq_message"):
-                        conn.on_rabbitmq_message(msg)
-                    else:
-                        logger.error(f"on_rabbitmq_message not implement for {from_app} {websocket_id}")
+            # if from_app == "site.alinlab.gpt":
+            conn = self.get_conn(from_app,websocket_id)
+            if conn:
+                if hasattr(conn,"on_rabbitmq_message"):
+                    conn.on_rabbitmq_message(msg)
                 else:
-                    logger.error(f"websocket not found for {from_app} {websocket_id}")
+                    logger.error(f"on_rabbitmq_message not implement for {from_app} {websocket_id}")
+            else:
+                logger.error(f"websocket not found for {from_app} {websocket_id}")
 
         except Exception as exc:
             logger.error(f"mq message parse error: {exc}",exc_info=True)

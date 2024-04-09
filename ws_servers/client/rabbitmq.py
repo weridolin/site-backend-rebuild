@@ -19,9 +19,9 @@ LOGGER = logging.getLogger(__name__)
 class WebSocketNodeConsumer(object):
     """
     """
-    EXCHANGE = 'rest-svc'
+    EXCHANGE = 'site.rest-svc'
     EXCHANGE_TYPE = ExchangeType.topic
-    QUEUE = 'rest-svc.messages'
+    QUEUE = 'site.rest-svc.messages'
 
     def __init__(self, amqp_url,on_message_callback=None):
         

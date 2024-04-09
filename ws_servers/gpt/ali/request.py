@@ -187,7 +187,7 @@ class HttpRequest(HttpMixins):
             else:
                 logger.error("ali gpt request update result back to DB success error ")            
         
-if __name__ =="__main__":
+# if __name__ =="__main__":
     # import asyncio,os
     # loop = asyncio.get_event_loop()
     # # message =[

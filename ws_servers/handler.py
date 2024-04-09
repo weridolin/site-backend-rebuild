@@ -19,13 +19,13 @@ class BaseHandle:
 
     async def on_connect(self) -> None:
         logger.info("new websocket client connect,websocket id -> %s",self.websocket.websocket_id)
-        self.manager.rabbitmq.add_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
+        self.manager.rabbitmq.add_subscribe(f"site.alinlab.gpt.wsmessage.{self.websocket.websocket_id}")
         await asyncio.sleep(0)
 
     async def on_disconnect(self) -> None:
         logger.info("websocket client disconnect")
     #     self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
-    #     self.manager.rabbitmq.remove_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
+    #     self.manager.rabbitmq.remove_subscribe(f"site.alinlab.gpt.wsmessage.{self.websocket.websocket_id}")
 
     async def on_error(self, exc: Exception) -> None:
         if not isinstance(exc, WsExceptions.ConnectionClosedOK):
@@ -33,16 +33,22 @@ class BaseHandle:
         else:
             logger.info(f"websocket conn closed, id: {self.websocket.websocket_id}")
         self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
-        self.manager.rabbitmq.remove_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
+        self.manager.rabbitmq.remove_subscribe(f"site.alinlab.gpt.wsmessage.{self.websocket.websocket_id}")
 
 
     async def on_close(self,code,reason) -> None:
         logger.info(f"websocket handle close -> {code} {reason}")
         self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
-        self.manager.rabbitmq.remove_subscribe(f"gpt.wsmessage.{self.websocket.websocket_id}")
+        self.manager.rabbitmq.remove_subscribe(f"site.alinlab.gpt.wsmessage.{self.websocket.websocket_id}")
 
     async def dispatch(self) -> None:
-        raise NotImplementedError
+        while not self.close:
+            try:
+                message = await self.websocket.recv()
+                self.on_ws_message(message)
+            except Exception as exc:
+                await self.on_error(exc)
+                break
 
     async def send(self, message: str) -> None:
         await self.websocket.send(message)
@@ -80,14 +86,14 @@ class BaseHandle:
 
 class GptWebsocketHandle(BaseHandle):
 
-    async def dispatch(self):
-        while not self.close:
-            try:
-                message = await self.websocket.recv()
-                self.on_ws_message(message)
-            except Exception as exc:
-                await self.on_error(exc)
-                break
+    # async def dispatch(self):
+    #     while not self.close:
+    #         try:
+    #             message = await self.websocket.recv()
+    #             self.on_ws_message(message)
+    #         except Exception as exc:
+    #             await self.on_error(exc)
+    #             break
 
     def on_rabbitmq_message(self,msg:dict):
         """
@@ -163,3 +169,30 @@ class GptWebsocketHandle(BaseHandle):
                 logger.error(f"message is not a valid json format -> {msg}")
                 return
         logger.info(f"get message from client, websocket id -> {self.websocket.websocket_id}  message -> {msg}")
+
+
+
+class WebHookWebsocketHandle(BaseHandle):
+
+    def on_ws_message(self, msg):
+        return super().on_ws_message(msg)
+    
+    def on_rabbitmq_message(self, msg:dict):
+        """
+                uuid:        req.Uuid,
+                header:      header,
+                raw:         raw,
+                query_params: queryParams,
+                host:        r.RemoteAddr,
+                method:      r.Method,
+                form_data:    formData,
+                from_app: ""
+        """
+        # from_app,uuid = msg.get("from_app"),msg.get("uuid")
+        # if not from_app or not uuid:
+        #     logger.error(f"from_app or uuid not found in message -> {msg}")
+        #     return
+            # await conn
+        logger.info(f"webhook websocket get message from rabbitmq -> {msg}")
+        asyncio.create_task(self.send(json.dumps(msg)))
+        # return super().on_rabbitmq_message(msg)

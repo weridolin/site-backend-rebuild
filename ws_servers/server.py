@@ -5,7 +5,7 @@ import logging
 import signal
 import urllib.parse
 import uuid,jwt,sys,os
-from handler import GptWebsocketHandle
+from handler import GptWebsocketHandle,WebHookWebsocketHandle
 import websockets
 import re,functools
 from manage import get_manager
@@ -28,8 +28,10 @@ def get_query_param(path, key):
         return values[0]
 
 async def create_handler(websocket,manager):
-    if websocket.app == "gpt":
+    if websocket.app == "site.alinlab.gpt":
         handler = GptWebsocketHandle(websocket,manger=manager)
+    elif websocket.app == "site.alinlab.webhook":
+        handler = WebHookWebsocketHandle(websocket,manger=manager)
     else:
         raise NotImplementedError(f"App {websocket.app} handler not implemented")
     
@@ -39,20 +41,25 @@ async def create_handler(websocket,manager):
 
 class QueryParamProtocol(websockets.WebSocketServerProtocol):
     async def process_request(self, path, headers):
-        if re.search(r"/ws-endpoint/api/v1/gpt\?token=([\s\S])*", path):
-            token = get_query_param(path=path, key="token")
-            print("token",token)
-            try:
-                payload = decode_token(token)
-                self.token_payload = payload
-                self.user_id = payload.get("user_id")
-                self.websocket_id = payload.get("websocket_id")
-            except jwt.DecodeError:
-                return http.HTTPStatus.UNAUTHORIZED, [], b"Invalid token"
-            self.app = "gpt"
-            self.conversation_id = payload.get("conversation_id")
-        else:
-            return http.HTTPStatus.NOT_FOUND, [], b"URL not found"
+        # if re.search(r"/ws-endpoint/api/v1/gpt\?token=([\s\S])*", path):
+        token = get_query_param(path=path, key="token")
+        print("token",token)
+        if not token:
+            return http.HTTPStatus.UNAUTHORIZED, [], b"Token is missing"
+        try:
+            payload = decode_token(token)
+            self.token_payload = payload
+            self.user_id = payload.get("user_id",None)
+            self.websocket_id = payload.get("websocket_id")
+            self.app = payload.get("app")
+            
+            if self.app=="site.alinlab.gpt":
+                self.conversation_id = payload.get("conversation_id")
+        except jwt.DecodeError:
+            return http.HTTPStatus.UNAUTHORIZED, [], b"Invalid token"
+        
+        # else:
+            # return http.HTTPStatus.NOT_FOUND, [], b"URL not found"
 
 
 async def main():
