@@ -10,7 +10,6 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
         auth_request /token/validate;
         auth_request_set $user_id $upstream_http_x_forwarded_user;
-        proxy_set_header Host $host;
         proxy_set_header X-User $user_id;     
         set $dummy_val "$opentelemetry_context_traceparent";
         if ($request_uri ~* "sse$") {
