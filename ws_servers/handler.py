@@ -19,7 +19,7 @@ class BaseHandle:
 
     async def on_connect(self) -> None:
         logger.info("new websocket client connect,websocket id -> %s",self.websocket.websocket_id)
-        self.manager.rabbitmq.add_subscribe(f"site.alinlab.gpt.wsmessage.{self.websocket.websocket_id}")
+        self.manager.rabbitmq.add_subscribe(f"{self.websocket.app}.wsmessage.{self.websocket.websocket_id}")
         await asyncio.sleep(0)
 
     async def on_disconnect(self) -> None:
