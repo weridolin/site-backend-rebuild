@@ -5,7 +5,7 @@ metadata:	        #译名为元数据，即 Deployment 的一些基本属性和�
   labels:	    #标签，可以灵活定位一个或多个资源，其中key和value均可自定义，可以定义多组，目前不需要理解
     app: redis	#为该Deployment设置key为app，value为nginx的标签
 spec:	        #这是关于该Deployment的描述，可以理解为你期待该Deployment在k8s中如何使用
-  replicas: 2	#使用该Deployment创建两个应用程序实例
+  replicas: 1	#使用该Deployment创建两个应用程序实例
   selector:	    #标签选择器，与上面的标签共同作用，目前不需要理解
     matchLabels: #选择包含标签app:nginx的资源即为下面template的模板中包含 app:nginx的模板
       app: redis
