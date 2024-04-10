@@ -69,6 +69,7 @@ class WsConnManager:
                     conn.on_rabbitmq_message(msg)
                 else:
                     logger.error(f"on_rabbitmq_message not implement for {from_app} {websocket_id}")
+                    logger.info("conn map -> %s",self.conn_map)
             else:
                 logger.error(f"websocket not found for {from_app} {websocket_id}")
 
