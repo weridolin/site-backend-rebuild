@@ -59,7 +59,7 @@ class WsConnManager:
             if not websocket_id or not from_app:
                 logger.error(f"websocket id or from_app not found in message")
                 return
-            if datetime.datetime.now().timestamp() > exp:
+            if exp and datetime.datetime.now().timestamp() > exp:
                 logger.error(f"message expired at {exp},now is {datetime.datetime.now().timestamp()}")
                 return
             # if from_app == "site.alinlab.gpt":
