@@ -4,7 +4,7 @@
 
 import os,grpc,logging
 import asyncio,os,csv,json
-from ws_servers.datafaker import generator
+from datafaker import generator
 from rpc import gpt_pb2,gpt_pb2_grpc
 
 # threadsPool = ThreadPoolExecutor(max_workers=os.cpu_count()*3)
@@ -22,7 +22,7 @@ from rpc import gpt_pb2,gpt_pb2_grpc
 #         #cw.writerows(l) #将嵌套列表内容写入csv文件，每个外层元素为一行，每个内层元素为一个数据
 import aiofiles
 from aiocsv import AsyncWriter
-from ws_servers.const import WSMessageType
+from const import WSMessageType
 import uuid
 
 logger = logging.getLogger(__name__)

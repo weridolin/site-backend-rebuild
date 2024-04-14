@@ -3,7 +3,7 @@ from manage import get_manager
 from gpt.ali.request import HttpRequest as AliHttpRequest
 from websockets import server
 from websockets import exceptions as WsExceptions
-from ws_servers.datafaker.dfaker import create_task_async
+from datafaker.dfaker import create_task_async
 from const import WSMessageType
 
 import logging
