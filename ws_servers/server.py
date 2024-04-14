@@ -30,8 +30,11 @@ def get_query_param(path, key):
 async def create_handler(websocket,manager):
     if websocket.app == "site.alinlab.gpt":
         handler = GptWebsocketHandle(websocket,manger=manager)
+
     elif websocket.app == "site.alinlab.webhook":
         handler = WebHookWebsocketHandle(websocket,manger=manager)
+    elif websocket.app =="site.alinlab.datafaker":
+        ...
     else:
         raise NotImplementedError(f"App {websocket.app} handler not implemented")
     
@@ -41,7 +44,6 @@ async def create_handler(websocket,manager):
 
 class QueryParamProtocol(websockets.WebSocketServerProtocol):
     async def process_request(self, path, headers):
-        # if re.search(r"/ws-endpoint/api/v1/gpt\?token=([\s\S])*", path):
         token = get_query_param(path=path, key="token")
         print("token",token)
         if not token:
@@ -55,6 +57,13 @@ class QueryParamProtocol(websockets.WebSocketServerProtocol):
             
             if self.app=="site.alinlab.gpt":
                 self.conversation_id = payload.get("conversation_id")
+            elif self.app=="site.alinlab.datafaker":
+                # self.callback_url = payload.get("callback_url")
+                self.record_key = payload.get("record_key")
+                self.target_path = payload.get("target_path")
+                self.data_count = payload.get("data_count")
+                self.fields_info = payload.get("fields_info")
+                self.callback_url_grpc = payload.get("callback_url_grpc")
         except jwt.DecodeError:
             return http.HTTPStatus.UNAUTHORIZED, [], b"Invalid token"
         

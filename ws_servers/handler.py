@@ -3,7 +3,8 @@ from manage import get_manager
 from gpt.ali.request import HttpRequest as AliHttpRequest
 from websockets import server
 from websockets import exceptions as WsExceptions
-
+from ws_servers.datafaker.dfaker import create_task_async
+from const import WSMessageType
 
 import logging
 logger = logging.getLogger(__name__)
@@ -196,3 +197,53 @@ class WebHookWebsocketHandle(BaseHandle):
         logger.info(f"webhook websocket get message from rabbitmq -> {msg}")
         asyncio.create_task(self.send(json.dumps(msg)))
         # return super().on_rabbitmq_message(msg)
+
+
+class DataFakerWebsocketHandle(BaseHandle):
+
+    def on_ws_message(self, msg):
+        if isinstance(msg,bytes):
+            msg = msg.decode("utf-8")
+        if isinstance(msg,str):
+            try:
+                msg = json.loads(msg)
+                if msg.get("type",None)== WSMessageType.start:
+                    ## START CREATE TASK
+                    record_key = msg.get("record_key",None)
+                    asyncio.run_coroutine_threadsafe(
+                        create_task_async(
+                            record_key=record_key,
+                            ws=self,
+                            target_path=self.target_path,
+                            count=self.count,
+                            fields_info=self.fields_info,  
+                            callback_url_grpc=self.callback_url_grpc                          
+                            ), 
+                        asyncio.get_running_loop()
+                    )
+                elif msg.get("type",None)== WSMessageType.stop:
+                    raise NotImplementedError
+                message = "generating data ing..."
+            except json.JSONDecodeError:
+                message = f"get invalid json format data:{msg}"
+            except Exception as exc:
+                message = f"an error raise:{exc}"
+
+
+        return super().on_ws_message(msg)
+
+
+
+
+    def on_rabbitmq_message(self, msg:dict):
+        """
+                uuid:        req.Uuid,
+                header:      header,
+                raw:         raw,
+                query_params: queryParams,
+                host:        r.RemoteAddr,
+                method:      r.Method,
+                form_data:    formData,
+                from_app: ""
+        """
+        raise NotImplementedError
