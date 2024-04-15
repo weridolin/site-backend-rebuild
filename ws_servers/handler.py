@@ -230,10 +230,6 @@ class DataFakerWebsocketHandle(BaseHandle):
                 message = f"an error raise:{exc}"
 
 
-        return super().on_ws_message(msg)
-
-
-
 
     def on_rabbitmq_message(self, msg:dict):
         """
