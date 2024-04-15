@@ -28,6 +28,7 @@ import uuid
 logger = logging.getLogger(__name__)
 
 async def create_task_async(record_key=None,ws=None,target_path=None,count=None,fields_info=None,callback_url_grpc=None):
+    logger.info(f"create task async, record_key -> {record_key}")
 
     if not os.path.exists(os.path.dirname(target_path)):
         os.makedirs(os.path.dirname(target_path))
