@@ -5,7 +5,7 @@ import logging
 import signal
 import urllib.parse
 import uuid,jwt,sys,os
-from handler import GptWebsocketHandle,WebHookWebsocketHandle
+from handler import GptWebsocketHandle,WebHookWebsocketHandle,DataFakerWebsocketHandle
 import websockets
 import re,functools
 from manage import get_manager
@@ -34,7 +34,7 @@ async def create_handler(websocket,manager):
     elif websocket.app == "site.alinlab.webhook":
         handler = WebHookWebsocketHandle(websocket,manger=manager)
     elif websocket.app =="site.alinlab.datafaker":
-        ...
+        handler = DataFakerWebsocketHandle(websocket,manger=manager)
     else:
         raise NotImplementedError(f"App {websocket.app} handler not implemented")
     
