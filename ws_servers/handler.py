@@ -34,13 +34,13 @@ class BaseHandle:
         else:
             logger.info(f"websocket conn closed, id: {self.websocket.websocket_id}")
         self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
-        self.manager.rabbitmq.remove_subscribe(f"site.alinlab.gpt.wsmessage.{self.websocket.websocket_id}")
+        self.manager.rabbitmq.remove_subscribe(f"{self.websocket.app}.wsmessage.{self.websocket.websocket_id}")
 
 
     async def on_close(self,code,reason) -> None:
         logger.info(f"websocket handle close -> {code} {reason}")
         self.manager.remove_conn(self.websocket.app,self.websocket.websocket_id)
-        self.manager.rabbitmq.remove_subscribe(f"site.alinlab.gpt.wsmessage.{self.websocket.websocket_id}")
+        self.manager.rabbitmq.remove_subscribe(f"{self.websocket.app}.wsmessage.{self.websocket.websocket_id}")
 
     async def dispatch(self) -> None:
         while not self.close:
@@ -202,6 +202,7 @@ class WebHookWebsocketHandle(BaseHandle):
 class DataFakerWebsocketHandle(BaseHandle):
 
     def on_ws_message(self, msg):
+        logger.info(f"get message from client, websocket id -> {self.websocket.websocket_id}  message -> {msg}")
         if isinstance(msg,bytes):
             msg = msg.decode("utf-8")
         if isinstance(msg,str):
