@@ -208,28 +208,26 @@ class DataFakerWebsocketHandle(BaseHandle):
         if isinstance(msg,str):
             try:
                 msg = json.loads(msg)
-                if msg.get("type",None)== WSMessageType.start:
-                    ## START CREATE TASK
-                    record_key = msg.get("record_key",None)
-                    asyncio.run_coroutine_threadsafe(
-                        create_task_async(
-                            record_key=record_key,
-                            ws=self,
-                            target_path=self.target_path,
-                            count=self.count,
-                            fields_info=self.fields_info,  
-                            callback_url_grpc=self.callback_url_grpc                          
-                            ), 
-                        asyncio.get_running_loop()
-                    )
-                elif msg.get("type",None)== WSMessageType.stop:
-                    raise NotImplementedError
-                message = "generating data ing..."
             except json.JSONDecodeError:
                 message = f"get invalid json format data:{msg}"
             except Exception as exc:
                 message = f"an error raise:{exc}"
-
+        if msg.get("type",None)== WSMessageType.start:
+            ## START CREATE TASK
+            record_key = msg.get("record_key",None)
+            asyncio.run_coroutine_threadsafe(
+                create_task_async(
+                    record_key=record_key,
+                    ws=self,
+                    target_path=self.target_path,
+                    count=self.count,
+                    fields_info=self.fields_info,  
+                    callback_url_grpc=self.callback_url_grpc                          
+                    ), 
+                asyncio.get_running_loop()
+            )
+        elif msg.get("type",None)== WSMessageType.stop:
+            raise NotImplementedError
 
 
     def on_rabbitmq_message(self, msg:dict):
