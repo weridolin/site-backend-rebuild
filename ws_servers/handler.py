@@ -219,10 +219,10 @@ class DataFakerWebsocketHandle(BaseHandle):
                 create_task_async(
                     record_key=record_key,
                     ws=self,
-                    target_path=self.target_path,
-                    count=self.count,
-                    fields_info=self.fields_info,  
-                    callback_url_grpc=self.callback_url_grpc                          
+                    target_path=self.websocket.target_path,
+                    count=self.websocket.data_count,
+                    fields_info=self.websocket.fields_info,  
+                    callback_url_grpc=self.websocket.callback_url_grpc                          
                     ), 
                 asyncio.get_running_loop()
             )

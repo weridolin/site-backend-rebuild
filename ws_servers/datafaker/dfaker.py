@@ -64,7 +64,7 @@ async def create_task_async(record_key=None,ws=None,target_path=None,count=None,
 
 
 async def callback_by_rpc(record_key,file_path,download_code,callback_url_grpc):
-    print(f"ali gpt request update result back to DB by grpc, address -> {callback_url_grpc}")
+    logger.info(f"datafaker update result back to DB by grpc, address -> {callback_url_grpc},record_key -> {record_key},file_path -> {file_path},download_code -> {download_code}")
     async with grpc.aio.insecure_channel(callback_url_grpc) as channel:
         stub = gpt_pb2_grpc.GptMessageStub(channel)
         response = await stub.UpdateDataFakerGenerateResult(gpt_pb2.UpdateDataFakerGenerateResultRequest(
