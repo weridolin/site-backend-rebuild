@@ -23,6 +23,7 @@ spec:
         command: ["/bin/sh","-c"]
         args:
           - |
+            cd ./ws_servers
             mkdir /root/.pip/
             cp pip.conf /root/.pip/pip.conf
             pip install -r requirements.txt  --default-timeout=1000
@@ -68,7 +69,7 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: /site/site-backend-rebuild/ws_servers  # 源码目录 
+    path: /site/site-backend-rebuild  # 源码目录 
     type: DirectoryOrCreate
   claimRef: # 确保其他 volume不会绑定到该 PV
     name: pvc-wsserver-app-src-code
