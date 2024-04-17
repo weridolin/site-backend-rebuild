@@ -214,7 +214,7 @@ class DataFakerWebsocketHandle(BaseHandle):
                 message = f"an error raise:{exc}"
         if msg.get("type",None)== WSMessageType.start:
             ## START CREATE TASK
-            record_key = msg.get("key",None)
+            record_key = msg.get("record_key",None)
             asyncio.run_coroutine_threadsafe(
                 create_task_async(
                     record_key=record_key,
