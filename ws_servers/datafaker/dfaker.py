@@ -31,6 +31,7 @@ async def create_task_async(record_key=None,ws=None,target_path=None,count=None,
     logger.info(f"create task async, record_key -> {record_key},target path ->{target_path},count -> {count},fields_info -> {fields_info},callback_url_grpc -> {callback_url_grpc}")
 
     # /app/media/faker/user_1/d6c939aaedb6479ba8b86002eb3c4954.csv -> /oldbackend/media/faker/user_1/d6c939aaedb6479ba8b86002eb3c4954.csv
+    old_backend_path = target_path
     target_path = target_path.replace("/app","/app/oldbackend")
 
     if not os.path.exists(os.path.dirname(target_path)):
@@ -56,14 +57,14 @@ async def create_task_async(record_key=None,ws=None,target_path=None,count=None,
             await writer.writerow(item) #将列表的每个元素写到csv文件的一行
     download_code = uuid.uuid4().hex[:6]
     if callback_url_grpc:
-        await callback_by_rpc(record_key,target_path,download_code,callback_url_grpc)
+        await callback_by_rpc(record_key,old_backend_path,download_code,callback_url_grpc)
     await ws.send(json.dumps({
         "type":WSMessageType.finish,
         "record_key":record_key,
         "data":{
             "download_code":download_code}
         },ensure_ascii=False))
-    return target_path,ws
+    return old_backend_path,ws
 
 
 async def callback_by_rpc(record_key,file_path,download_code,callback_url_grpc):
@@ -76,9 +77,9 @@ async def callback_by_rpc(record_key,file_path,download_code,callback_url_grpc):
             download_code=download_code
         ))
         if response.success:
-            logger.info("ali gpt request update result back to DB success")
+            logger.info("datafaker update  update result back to DB success")
         else:
-            logger.error("ali gpt request update result back to DB success error ")     
+            logger.error("datafaker update  update result back to DB  error ")     
 
 class FakerDataFactory():
     
