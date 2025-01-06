@@ -34,8 +34,11 @@ spec:
           args:
             - |
               echo 'start user center server...'
+              cd /app
+              ls -l
               go mod tidy
               go install github.com/cortesi/modd/cmd/modd@latest
+              modd -f ./modd.conf
               go run  ./services/users/cmd/rest/users.go -f ./services/users/cmd/rest/etc/users.yaml
           envFrom:
             - configMapRef:
@@ -93,8 +96,15 @@ spec:
     app: site-usercenter
   ports:
     - name: internal-service-usercenter-app
-      port: 8080          # 服务访问端口
-      targetPort: 8080       # 容器端口
-      nodePort: 30006      # NodePort
+      port: 8080          # SERVER监听的端口
+      targetPort: 8080       # POD 监听的端口,从SEVER获取的请求会转发到这个端口
+      nodePort: 30006      # NodePort 当服务类型为 NodePort 或 LoadBalancer 时使用。
+                          # 它是在每个节点上开放的端口，外部流量可以通过这个端口访问集群内的服务。
+
+    - name: internal-service-usercenter-app-rpc
+      port: 8081          # SERVER监听的端口
+      targetPort: 8081       # POD 监听的端口,从SEVER获取的请求会转发到这个端口
+      nodePort: 40006      # NodePort 当服务类型为 NodePort 或 LoadBalancer 时使用。
+                          # 它是在每个节点上开放的端口，外部流量可以通过这个端口访问集群内的服务。
   type: NodePort
 
