@@ -30,21 +30,26 @@ spec:
           volumeMounts:
             - name: usercenter-app
               mountPath: /app
+
           command: ["/bin/sh","-c"]
           args:
             - |
               echo 'start user center server...'
+              cd /app
+              ls -l
               go mod tidy
               go install github.com/cortesi/modd/cmd/modd@latest
-              go run  ./services/users/cmd/rest/users.go -f ./services/users/cmd/rest/etc/users.yaml
+              modd -f ./modd.conf
+
           envFrom:
             - configMapRef:
                 name: site-config
 
       volumes:
         - name: usercenter-app
-          persistentVolumeClaim:
-            claimName: pvc-usercenter-src-code
+          hostPath:
+            path: /site/site-backend-rebuild/usercenter
+            type: Directory
 
 --- 
 ### mount-usercenter-src-code
@@ -96,5 +101,12 @@ spec:
       port: 8080          # 服务访问端口
       targetPort: 8080       # 容器端口
       nodePort: 30006      # NodePort
+      
+    - name: internal-service-usercenter-app-rpc
+      port: 8081          # SERVER监听的端口
+      targetPort: 8081       # POD 监听的端口,从SEVER获取的请求会转发到这个端口
+      nodePort: 31006      # NodePort 当服务类型为 NodePort 或 LoadBalancer 时使用。
+                          # 它是在每个节点上开放的端口，外部流量可以通过这个端口访问集群内的服务。
+
   type: NodePort
 

@@ -1,1 +1,1 @@
-kubectl create configmap site-config --from-env-file=../.env
+kubectl create configmap site-config --from-env-file=../../.env
