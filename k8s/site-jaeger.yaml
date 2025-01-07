@@ -22,6 +22,8 @@ spec:	        #这是关于该Deployment的描述，可以理解为你期待该D
           name: dashboard
         - containerPort: 4317
           name: client
+        - containerPort: 14250
+          name: collector-grpc        
         env:
           # Define the environment variable      - LOG_LEVEL=debug
       # - SPAN_STORAGE_TYPE=elasticsearch
@@ -42,9 +44,9 @@ spec:
   selector:
     app: jaeger
   ports:
-    - name: jaeger-srv-client
-      port: 4317
-      targetPort: 4317
+    - name: jaeger-collector-grpc 
+      port: 14250
+      targetPort: 14250
       nodePort: 31001 # 可以通过所在node的IP来访问
     - name: jaeger-srv-dashboard
       port: 16686
