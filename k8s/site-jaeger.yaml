@@ -44,6 +44,10 @@ spec:
   selector:
     app: jaeger
   ports:
+    - name: jaeger-collector-http 
+      port: 4317
+      targetPort: 4317
+      nodePort: 31002 # 可以通过所在node的IP来访问
     - name: jaeger-collector-grpc 
       port: 14250
       targetPort: 14250
