@@ -19,7 +19,7 @@ metadata:
         }
         # 设置 opentelemetry-operation-name 包含请求路径
         set $opentelemetry_operation_name "oldbackend.processRequest: $request_uri";
-        opentelemetry-operation-name $opentelemetry_operation_name;    
+        proxy_set_header opentelemetry-operation-name $opentelemetry_operation_name;    
 spec:
   rules:
   - http:
