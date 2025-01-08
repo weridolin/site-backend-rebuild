@@ -17,7 +17,7 @@ metadata:
             add_header X-Accel-Buffering  "no";
 
         }
-        set $opentelemetry_operation_name "oldbackend.processRequest: $request_uri";
+        set $opentelemetry_operation_name "oldbackend.processRequest: $request";
         proxy_set_header opentelemetry-operation-name $opentelemetry_operation_name;
 spec:
   rules:
