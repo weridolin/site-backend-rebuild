@@ -8,9 +8,6 @@ metadata:
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
-        # 设置 opentelemetry-operation-name 包含请求路径
-        set $opentelemetry_operation_name "oldbackend.processRequest: $request_uri";
-        proxy_set_header opentelemetry-operation-name $opentelemetry_operation_name;
         auth_request /token/validate;
         auth_request_set $user_id $upstream_http_x_forwarded_user;
         proxy_set_header X-User $user_id;     
@@ -20,7 +17,9 @@ metadata:
             add_header X-Accel-Buffering  "no";
 
         }
-
+        # 设置 opentelemetry-operation-name 包含请求路径
+        set $opentelemetry_operation_name "oldbackend.processRequest: $request_uri";
+        opentelemetry-operation-name $opentelemetry_operation_name;
   rules:
   - http:
       paths:
