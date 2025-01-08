@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: user-center
-          image: golang:1.18
+          image: golang:1.21
           ports:
           - containerPort: 8080
             name: usercenter-port
