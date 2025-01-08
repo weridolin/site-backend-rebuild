@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: usercenter-ingress
   annotations:
-    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "usercenterApiCall"
+    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "usercenter.processRequest"
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /usercenter/$1
@@ -38,7 +38,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
-    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "tokenValidation"
+    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "usercenter.tokenValidation"
     nginx.ingress.kubernetes.io/configuration-snippet: |
         internal; # 只允许内部调用，外部调用报404
         proxy_pass_request_body off; # 不向上游发送包体

@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: lab.webhook.ingress
   annotations:
-    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "lab.webhook"
+    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "lab.webhook.processRequest"
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
