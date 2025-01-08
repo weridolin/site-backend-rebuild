@@ -21,9 +21,9 @@ spec:	        #这是关于该Deployment的描述，可以理解为你期待该D
         - containerPort: 16686
           name: dashboard
         - containerPort: 4317
-          name: otelcollectorgrpc
+          name: otelgrpc
         - containerPort: 14250
-          name: collectorgrpc        
+          name: jaegergrpc        
         env:
           # Define the environment variable      - LOG_LEVEL=debug
       # - SPAN_STORAGE_TYPE=elasticsearch
