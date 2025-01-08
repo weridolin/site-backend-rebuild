@@ -4,10 +4,12 @@ metadata:
   name: oldbackend-ingress
   annotations:
     # nginx.ingress.kubernetes.io/rewrite-target: /usercenter/$1
-    # nginx.ingress.kubernetes.io/opentelemetry-operation-name: "oldbackend.processRequest: $request_uri"
+    # nginx.ingress.kubernetes.io/opentelemetry-operation-name: "oldbackend.processRequest: $request"
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
+        set $opentelemetry_operation_name "oldbackend.processRequest: $request_uri";
+        opentelemetry-operation-name $opentelemetry_operation_name;
         auth_request /token/validate;
         auth_request_set $user_id $upstream_http_x_forwarded_user;
         proxy_set_header X-User $user_id;     
@@ -17,9 +19,7 @@ metadata:
             add_header X-Accel-Buffering  "no";
 
         }
-        set $opentelemetry_operation_name "oldbackend.processRequest: $request";
-        proxy_set_header opentelemetry-operation-name $opentelemetry_operation_name;
-spec:
+
   rules:
   - http:
       paths:
