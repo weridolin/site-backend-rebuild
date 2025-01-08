@@ -21,9 +21,9 @@ spec:	        #这是关于该Deployment的描述，可以理解为你期待该D
         - containerPort: 16686
           name: dashboard
         - containerPort: 4317
-          name: otel-collector-grpc
+          name: otelcollectorgrpc
         - containerPort: 14250
-          name: jaeger-collector-grpc       
+          name: collectorgrpc        
         env:
           # Define the environment variable      - LOG_LEVEL=debug
       # - SPAN_STORAGE_TYPE=elasticsearch
@@ -48,10 +48,6 @@ spec:
       port: 4317
       targetPort: 4317
       nodePort: 31002 # 可以通过所在node的IP来访问
-    # - name: otel-collector-http 
-    #   port: 4318
-    #   targetPort: 4318
-    #   nodePort: 31003 # 可以通过所在node的IP来访问
     - name: jaeger-collector-grpc 
       port: 14250
       targetPort: 14250
