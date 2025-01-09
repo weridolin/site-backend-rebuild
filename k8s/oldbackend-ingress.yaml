@@ -4,7 +4,7 @@ metadata:
   name: oldbackend-ingress
   annotations:
     # nginx.ingress.kubernetes.io/rewrite-target: /usercenter/$1
-    # nginx.ingress.kubernetes.io/opentelemetry-operation-name: "oldbackend.processRequest"
+    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "oldbackend.processRequest"
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
@@ -18,8 +18,8 @@ metadata:
 
         }
         # 设置 opentelemetry-operation-name 包含请求路径
-        set $opentelemetry_operation_name "oldbackend.processRequest: $request_uri";
-        proxy_set_header opentelemetry-operation-name $opentelemetry_operation_name;    
+        # set $opentelemetry_operation_name "oldbackend.processRequest: $request_uri";
+        # proxy_set_header opentelemetry-operation-name $opentelemetry_operation_name;    
 spec:
   rules:
   - http:
