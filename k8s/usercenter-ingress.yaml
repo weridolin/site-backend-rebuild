@@ -3,11 +3,12 @@ kind: Ingress
 metadata:
   name: usercenter-ingress
   annotations:
-    nginx.ingress.kubernetes.io/opentelemetry-operation-name: "usercenter.processRequest"
+    # nginx.ingress.kubernetes.io/opentelemetry-operation-name: "usercenter.processRequest"
     nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
     nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-span: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /usercenter/$1
     nginx.ingress.kubernetes.io/configuration-snippet: |
+        opentelemetry_operation_name  "usercenter.processRequest: $request_uri";
         auth_request /token/validate;
         auth_request_set $user_id $upstream_http_x_forwarded_user;
         proxy_set_header X-User $user_id;
